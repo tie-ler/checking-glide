@@ -69,13 +69,6 @@ function stamp(data) {
   return day + "  " + (t || clockNow())
 }
 
-function label(col, text, color, size) {
-  const t = col.addText(text)
-  t.font = Font.boldSystemFont(size || 10)
-  t.textColor = color
-  return t
-}
-
 function bigFont(size) {
   try { return new Font("Menlo-Bold", size) }
   catch (e) { return Font.boldSystemFont(size) }
@@ -94,8 +87,8 @@ function sparkImage(data, width, height) {
   let run = 0
   for (const v of daily) { run += v; cum.push(run) }
   const base = Number(data.nominal_spend) || 55
-  const maxY = Math.max(base, ...cum, 1) * 1.12
-  const padL = 8, padR = 6, padT = 18, padB = 6
+  const maxY = Math.max(base, ...cum, 1) * 1.15
+  const padL = 6, padR = 8, padT = 14, padB = 6
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = Math.max(cum.length, 2)
@@ -103,8 +96,8 @@ function sparkImage(data, width, height) {
   function X(i) { return padL + (i / (n - 1)) * plotW }
   function Y(v) { return padT + plotH - (v / maxY) * plotH }
 
-  dc.setStrokeColor(new Color("#34C759", 0.5))
-  dc.setLineWidth(1.5)
+  dc.setStrokeColor(new Color("#34C759", 0.55))
+  dc.setLineWidth(1)
   const basePath = new Path()
   basePath.move(new Point(padL, Y(base)))
   basePath.addLine(new Point(width - padR, Y(base)))
@@ -115,13 +108,13 @@ function sparkImage(data, width, height) {
   for (let i = 0; i < daily.length; i++) {
     const x0 = X(i)
     const x1 = X(Math.min(i + 1, n - 1))
-    const bw = Math.max(8, (x1 - x0) * 0.5)
+    const bw = Math.max(5, (x1 - x0) * 0.45)
     const h = (daily[i] / maxY) * plotH
     dc.fillRect(new Rect(x0 - bw / 2, Y(daily[i]), bw, h))
   }
 
   dc.setStrokeColor(new Color("#EDE9DE"))
-  dc.setLineWidth(2.5)
+  dc.setLineWidth(2)
   const line = new Path()
   line.move(new Point(X(0), Y(cum[0])))
   for (let i = 1; i < cum.length; i++) line.addLine(new Point(X(i), Y(cum[i])))
@@ -129,16 +122,15 @@ function sparkImage(data, width, height) {
   dc.strokePath()
 
   dc.setTextColor(new Color("#8E8E93"))
-  dc.setFont(Font.boldSystemFont(9))
-  dc.drawText("USED vs BASE", new Point(padL, 2))
-
+  dc.setFont(Font.boldSystemFont(8))
+  dc.drawText("USED vs BASE", new Point(padL, 1))
   return dc.getImage()
 }
 
 async function buildWidget(data) {
   const w = new ListWidget()
   w.backgroundColor = new Color("#0B0B0F")
-  w.setPadding(10, 14, 8, 0)
+  w.setPadding(12, 14, 10, 14)
   w.url = data.grok_url || GROK_URL
 
   const avail = Number(data.available_spend)
@@ -149,60 +141,75 @@ async function buildWidget(data) {
   const when = stamp(data)
 
   if (family === "small") {
-    w.setPadding(12, 14, 10, 14)
-    label(w, "AVAILABLE SPEND", accent, 10)
+    const h = w.addText("AVAILABLE SPEND")
+    h.font = Font.boldSystemFont(10)
+    h.textColor = accent
+    h.minimumScaleFactor = 0.7
     w.addSpacer(4)
     const big = w.addText(signedMoney(avail))
-    big.font = bigFont(28)
+    big.font = bigFont(26)
     big.textColor = accent
     w.addSpacer()
-    label(w, "AS OF  " + when, new Color("#636366"), 9)
+    const f = w.addText("AS OF  " + when)
+    f.font = Font.systemFont(9)
+    f.textColor = new Color("#636366")
+    f.minimumScaleFactor = 0.6
     return w
   }
 
   const top = w.addStack()
   top.layoutHorizontally()
-  top.topAlignContent()
+  top.centerAlignContent()
 
   const left = top.addStack()
   left.layoutVertically()
-  left.size = new Size(160, 0)
-  const head = left.addText("AVAILABLE SPEND")
-  head.font = Font.boldSystemFont(11)
-  head.textColor = accent
-  left.addSpacer(4)
-  const delta = left.addText(signedMoney(avail))
-  delta.font = bigFont(34)
-  delta.textColor = accent
-  const sub = left.addText("BASE  " + money(data.nominal_spend) + "    USED  " + money(data.disc_mtd))
-  sub.font = Font.mediumSystemFont(11)
-  sub.textColor = muted
-  left.addSpacer(6)
-  const asof = left.addText("AS OF  " + when)
-  asof.font = Font.boldSystemFont(9)
-  asof.textColor = new Color("#636366")
+  left.setPadding(0, 0, 0, 8)
 
-  const img = sparkImage(data, 420, 200)
-  const im = top.addImage(img)
-  im.imageSize = new Size(210, 100)
-  im.resizable = true
-  im.rightAlignImage()
+  const head = left.addText("AVAILABLE SPEND")
+  head.font = Font.boldSystemFont(10)
+  head.textColor = accent
+  head.lineLimit = 1
+  head.minimumScaleFactor = 0.7
+
+  const delta = left.addText(signedMoney(avail))
+  delta.font = bigFont(28)
+  delta.textColor = accent
+
+  const sub = left.addText("BASE  " + money(data.nominal_spend) + "   USED  " + money(data.disc_mtd))
+  sub.font = Font.systemFont(10)
+  sub.textColor = muted
+  sub.lineLimit = 1
+  sub.minimumScaleFactor = 0.7
+
+  const asof = left.addText("AS OF  " + when)
+  asof.font = Font.systemFont(9)
+  asof.textColor = new Color("#636366")
+  asof.lineLimit = 1
+  asof.minimumScaleFactor = 0.6
+
+  top.addSpacer()
+
+  const im = top.addImage(sparkImage(data, 300, 140))
+  im.imageSize = new Size(150, 70)
+  im.resizable = false
 
   w.addSpacer(8)
 
   const meta = w.addStack()
   meta.layoutHorizontally()
-  meta.setPadding(0, 0, 0, 14)
   function pill(k, v) {
     const s = meta.addStack()
     s.layoutVertically()
     const l = s.addText(k)
-    l.font = Font.boldSystemFont(9)
+    l.font = Font.boldSystemFont(8)
     l.textColor = muted
+    l.lineLimit = 1
     const val = s.addText(v)
-    val.font = Font.mediumSystemFont(12)
+    val.font = Font.mediumSystemFont(11)
     val.textColor = ink
-    meta.addSpacer(12)
+    val.lineLimit = 1
+    val.minimumScaleFactor = 0.7
+    meta.addSpacer(10)
   }
   pill("INCOME", money(data.daily_income) + " / D")
   pill("FIXED", money(data.daily_fixed) + " / D")
