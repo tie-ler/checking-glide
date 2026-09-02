@@ -3,7 +3,8 @@ const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/
 const GROK_URL = "https://grok.com"
 
 const FALLBACK = {
-  as_of: "2026-09-02 17:27",
+  as_of: "2026-09-02",
+  as_of_time: "5:33 PM",
   available_spend: 0.36,
   daily_income: 181.04,
   daily_fixed: 102.02,
@@ -50,12 +51,28 @@ function statusColor(status, available) {
   return new Color("#FFD60A")
 }
 
-function label(col, text, color, size, alignRight) {
+function clockNow() {
+  const d = new Date()
+  let h = d.getHours()
+  const m = String(d.getMinutes()).padStart(2, "0")
+  const ap = h >= 12 ? "PM" : "AM"
+  h = h % 12
+  if (h === 0) h = 12
+  return h + ":" + m + " " + ap
+}
+
+function stamp(data) {
+  const raw = String(data.as_of || "")
+  const t = String(data.as_of_time || "")
+  if (/\d{1,2}:\d{2}/.test(raw)) return raw
+  const day = raw.replace(/\s+.*/, "") || new Date().toISOString().slice(0, 10)
+  return day + "  " + (t || clockNow())
+}
+
+function label(col, text, color, size) {
   const t = col.addText(text)
   t.font = Font.boldSystemFont(size || 10)
   t.textColor = color
-  t.textOpacity = 0.85
-  if (alignRight) t.rightAlignText()
   return t
 }
 
@@ -77,8 +94,8 @@ function sparkImage(data, width, height) {
   let run = 0
   for (const v of daily) { run += v; cum.push(run) }
   const base = Number(data.nominal_spend) || 55
-  const maxY = Math.max(base, ...cum, 1) * 1.15
-  const padL = 4, padR = 4, padT = 16, padB = 4
+  const maxY = Math.max(base, ...cum, 1) * 1.12
+  const padL = 8, padR = 6, padT = 18, padB = 6
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = Math.max(cum.length, 2)
@@ -86,25 +103,25 @@ function sparkImage(data, width, height) {
   function X(i) { return padL + (i / (n - 1)) * plotW }
   function Y(v) { return padT + plotH - (v / maxY) * plotH }
 
-  dc.setStrokeColor(new Color("#34C759", 0.55))
-  dc.setLineWidth(1)
+  dc.setStrokeColor(new Color("#34C759", 0.5))
+  dc.setLineWidth(1.5)
   const basePath = new Path()
   basePath.move(new Point(padL, Y(base)))
   basePath.addLine(new Point(width - padR, Y(base)))
   dc.addPath(basePath)
   dc.strokePath()
 
-  dc.setFillColor(new Color("#FF453A", 0.22))
+  dc.setFillColor(new Color("#FF453A", 0.28))
   for (let i = 0; i < daily.length; i++) {
     const x0 = X(i)
     const x1 = X(Math.min(i + 1, n - 1))
-    const bw = Math.max(6, (x1 - x0) * 0.55)
+    const bw = Math.max(8, (x1 - x0) * 0.5)
     const h = (daily[i] / maxY) * plotH
     dc.fillRect(new Rect(x0 - bw / 2, Y(daily[i]), bw, h))
   }
 
   dc.setStrokeColor(new Color("#EDE9DE"))
-  dc.setLineWidth(2)
+  dc.setLineWidth(2.5)
   const line = new Path()
   line.move(new Point(X(0), Y(cum[0])))
   for (let i = 1; i < cum.length; i++) line.addLine(new Point(X(i), Y(cum[i])))
@@ -112,8 +129,8 @@ function sparkImage(data, width, height) {
   dc.strokePath()
 
   dc.setTextColor(new Color("#8E8E93"))
-  dc.setFont(Font.boldSystemFont(8))
-  dc.drawText("USED vs BASE", new Point(padL, 1))
+  dc.setFont(Font.boldSystemFont(9))
+  dc.drawText("USED vs BASE", new Point(padL, 2))
 
   return dc.getImage()
 }
@@ -121,60 +138,61 @@ function sparkImage(data, width, height) {
 async function buildWidget(data) {
   const w = new ListWidget()
   w.backgroundColor = new Color("#0B0B0F")
-  w.setPadding(12, 14, 10, 14)
+  w.setPadding(10, 14, 8, 0)
   w.url = data.grok_url || GROK_URL
 
   const avail = Number(data.available_spend)
   const family = config.widgetFamily || "medium"
   const accent = statusColor(data.status, avail)
-  const verb = avail < 0 ? "SAVE TODAY" : avail === 0 ? "FLAT" : "SPEND TODAY"
   const muted = new Color("#8E8E93")
   const ink = Color.white()
+  const when = stamp(data)
 
   if (family === "small") {
-    label(w, "AVAILABLE SPEND", muted, 10)
+    w.setPadding(12, 14, 10, 14)
+    label(w, "AVAILABLE SPEND", accent, 10)
     w.addSpacer(4)
     const big = w.addText(signedMoney(avail))
     big.font = bigFont(28)
     big.textColor = accent
-    label(w, verb, muted, 10)
     w.addSpacer()
-    label(w, data.as_of || "", new Color("#636366"), 9)
+    label(w, "AS OF  " + when, new Color("#636366"), 9)
     return w
   }
 
-  label(w, "AVAILABLE SPEND", muted, 10)
-  w.addSpacer(4)
+  const top = w.addStack()
+  top.layoutHorizontally()
+  top.topAlignContent()
 
-  const row = w.addStack()
-  row.layoutHorizontally()
-  row.topAlignContent()
-
-  const left = row.addStack()
+  const left = top.addStack()
   left.layoutVertically()
+  left.size = new Size(160, 0)
+  const head = left.addText("AVAILABLE SPEND")
+  head.font = Font.boldSystemFont(11)
+  head.textColor = accent
+  left.addSpacer(4)
   const delta = left.addText(signedMoney(avail))
-  delta.font = bigFont(32)
+  delta.font = bigFont(34)
   delta.textColor = accent
-  const verbT = left.addText(verb)
-  verbT.font = Font.boldSystemFont(11)
-  verbT.textColor = muted
   const sub = left.addText("BASE  " + money(data.nominal_spend) + "    USED  " + money(data.disc_mtd))
   sub.font = Font.mediumSystemFont(11)
   sub.textColor = muted
+  left.addSpacer(6)
+  const asof = left.addText("AS OF  " + when)
+  asof.font = Font.boldSystemFont(9)
+  asof.textColor = new Color("#636366")
 
-  row.addSpacer(10)
-
-  const right = row.addStack()
-  right.layoutVertically()
-  const img = sparkImage(data, 280, 120)
-  const im = right.addImage(img)
-  im.imageSize = new Size(140, 60)
+  const img = sparkImage(data, 420, 200)
+  const im = top.addImage(img)
+  im.imageSize = new Size(210, 100)
   im.resizable = true
+  im.rightAlignImage()
 
-  w.addSpacer(10)
+  w.addSpacer(8)
 
   const meta = w.addStack()
   meta.layoutHorizontally()
+  meta.setPadding(0, 0, 0, 14)
   function pill(k, v) {
     const s = meta.addStack()
     s.layoutVertically()
@@ -192,8 +210,6 @@ async function buildWidget(data) {
   pill("CONTROL", money(data.control))
   pill("FLOOR", money(data.floor))
 
-  w.addSpacer(6)
-  label(w, "AS OF  " + (data.as_of || ""), new Color("#636366"), 9)
   return w
 }
 
