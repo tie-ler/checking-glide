@@ -5,7 +5,7 @@ const BG = new Color("#0B0B0F")
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "5:52 PM",
+  as_of_time: "5:57 PM",
   available_spend: 0.36,
   daily_income: 181.04,
   daily_fixed: 102.02,
@@ -14,7 +14,8 @@ const FALLBACK = {
   disc_mtd: 54.27,
   status: "Spend",
   control: 5048.50,
-  floor: 8000,
+  control_avg: 2928.44,
+  floor: 10000,
   spark_week: [0, 89.69, 0, 102.35, 40.33, 13.24, 41.03],
   grok_url: GROK_URL,
 }
@@ -99,7 +100,7 @@ function sparkImage(data, width, height) {
 
   const base = Number(data.nominal_spend) || 55
   const maxY = Math.max(base, ...daily, 1) * 1.12
-  const padL = 2, padR = 2, padT = 12, padB = 14
+  const padL = 2, padR = 2, padT = 14, padB = 14
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = daily.length
@@ -131,7 +132,7 @@ function sparkImage(data, width, height) {
 
   dc.setTextColor(new Color("#8E8E93"))
   dc.setFont(Font.boldSystemFont(8))
-  dc.drawText("7D vs BASE", new Point(padL, 0))
+  dc.drawText("7D USED vs BASE", new Point(padL, 0))
   return dc.getImage()
 }
 
@@ -147,6 +148,8 @@ async function buildWidget(data) {
   const muted = new Color("#8E8E93")
   const ink = Color.white()
   const when = stamp(data)
+  const controlShow = Number(data.control_avg != null ? data.control_avg : data.control)
+  const floorShow = Number(data.floor != null ? data.floor : 10000)
 
   if (family === "small") {
     label(w, "AVAILABLE SPEND", accent, 10)
@@ -199,8 +202,8 @@ async function buildWidget(data) {
   pill("INCOME", money(data.daily_income) + " / D")
   pill("FIXED", money(data.daily_fixed) + " / D")
   pill("PATH", money(data.daily_path) + " / D")
-  pill("CONTROL", money(data.control))
-  pill("FLOOR", money(data.floor))
+  pill("CONTROL", money(controlShow))
+  pill("FLOOR", money(floorShow))
 
   w.addSpacer(6)
   label(w, "AS OF  " + when, new Color("#636366"), 9)
