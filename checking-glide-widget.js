@@ -1,7 +1,6 @@
 // Checking Glide — Scriptable widget
 // Hero = dollars you may spend (or must save) TODAY.
-// Support = daily income = how much available rises tomorrow if you spend $0 disc.
-// Home Screen → + → Scriptable → this script.
+// Support = daily income.
 
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
@@ -53,11 +52,13 @@ function statusColor(status, available) {
   return new Color("#FFD60A")
 }
 
-function addHeader(col, title, color) {
-  const t = col.addText(title)
-  t.font = Font.boldSystemFont(11)
+function label(col, text, color, size, alignRight) {
+  const t = col.addText(text)
+  t.font = Font.boldSystemFont(size || 10)
   t.textColor = color
-  t.textOpacity = 0.9
+  t.textOpacity = 0.85
+  if (alignRight) t.rightAlignText()
+  return t
 }
 
 function bigFont(size) {
@@ -75,80 +76,69 @@ async function buildWidget(data) {
   const family = config.widgetFamily || "medium"
   const accent = statusColor(data.status, avail)
   const verb = avail < 0 ? "SAVE TODAY" : avail === 0 ? "FLAT" : "SPEND TODAY"
+  const muted = new Color("#8E8E93")
 
   if (family === "small") {
-    addHeader(w, verb, accent)
+    label(w, verb, accent, 11)
     w.addSpacer(6)
     const big = w.addText(signedMoney(avail))
     big.font = bigFont(28)
     big.textColor = accent
-    const sub = w.addText("income " + money(data.daily_income) + "/d")
-    sub.font = Font.systemFont(12)
-    sub.textColor = Color.gray()
+    label(w, "INCOME  " + money(data.daily_income) + " / DAY", muted, 11)
     w.addSpacer()
-    const foot = w.addText(money(data.control) + "  floor $8k")
-    foot.font = Font.systemFont(11)
-    foot.textColor = Color.gray()
+    label(w, money(data.control) + "   FLOOR  " + money(data.floor), muted, 10)
     return w
   }
 
-  addHeader(w, verb, accent)
+  label(w, verb, accent, 11)
   w.addSpacer(8)
 
   const row = w.addStack()
   row.layoutHorizontally()
-  row.centerAlignContent()
+  row.topAlignContent()
 
   const left = row.addStack()
   left.layoutVertically()
   const delta = left.addText(signedMoney(avail))
   delta.font = bigFont(32)
   delta.textColor = accent
-  const pct = left.addText("nominal " + money(data.nominal_spend) + "  \u2212  disc " + money(data.disc_mtd))
-  pct.font = Font.systemFont(12)
-  pct.textColor = Color.gray()
+  const sub = left.addText("BASE  " + money(data.nominal_spend) + "    USED  " + money(data.disc_mtd))
+  sub.font = Font.mediumSystemFont(11)
+  sub.textColor = muted
 
   row.addSpacer()
 
   const right = row.addStack()
   right.layoutVertically()
-  const incL = right.addText("DAILY INCOME")
-  incL.font = Font.systemFont(10)
-  incL.textColor = Color.gray()
-  incL.rightAlignText()
-  const inc = right.addText(money(data.daily_income) + "/d")
-  inc.font = Font.boldSystemFont(16)
+  label(right, "INCOME", muted, 10, true)
+  const inc = right.addText(money(data.daily_income) + " / DAY")
+  inc.font = Font.boldSystemFont(15)
   inc.textColor = Color.white()
   inc.rightAlignText()
-  const hint = right.addText("hero + this if $0 disc")
-  hint.font = Font.systemFont(10)
-  hint.textColor = Color.gray()
-  hint.rightAlignText()
+  label(right, "IF NO SPEND", muted, 10, true)
 
   w.addSpacer(12)
 
   const meta = w.addStack()
   meta.layoutHorizontally()
-  function pill(label, value) {
+  function pill(k, v) {
     const s = meta.addStack()
     s.layoutVertically()
-    const l = s.addText(label)
-    l.font = Font.systemFont(10)
-    l.textColor = Color.gray()
-    const v = s.addText(value)
-    v.font = Font.mediumSystemFont(13)
-    v.textColor = Color.white()
-    meta.addSpacer(14)
+    const l = s.addText(k)
+    l.font = Font.boldSystemFont(10)
+    l.textColor = muted
+    const val = s.addText(v)
+    val.font = Font.mediumSystemFont(13)
+    val.textColor = Color.white()
+    meta.addSpacer(16)
   }
-  pill("FIXED", money(data.daily_fixed) + "/d")
-  pill("PATH", money(data.daily_path) + "/d")
+  pill("FIXED", money(data.daily_fixed) + " / D")
+  pill("PATH", money(data.daily_path) + " / D")
   pill("CONTROL", money(data.control))
   pill("FLOOR", money(data.floor))
 
   w.addSpacer()
-  const asof = w.addText("as of " + (data.as_of || "") + "  \u00b7  tap \u2192 Grok")
-  asof.font = Font.systemFont(10)
-  asof.textColor = new Color("#636366")
+  label(w, "AS OF  " + (data.as_of || "") + "    TAP FOR BREAKDOWN", new Color("#636366"), 10)
   return w
 }
 
