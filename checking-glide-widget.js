@@ -2,10 +2,12 @@
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
+const CHART_W = 132
+const CHART_H = 50
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "6:10 PM",
+  as_of_time: "6:12 PM",
   available_spend: 0.36,
   daily_income: 181.04,
   daily_fixed: 102.02,
@@ -85,8 +87,8 @@ function bigFont(size) {
 }
 
 function sparkImage(data) {
-  const width = 140
-  const height = 64
+  const width = CHART_W * 2
+  const height = CHART_H * 2
   const dc = new DrawContext()
   dc.size = new Size(width, height)
   dc.opaque = true
@@ -101,25 +103,26 @@ function sparkImage(data) {
   if (daily.length > 7) daily = daily.slice(-7)
 
   const base = Number(data.nominal_spend) || 55
-  const maxY = Math.max(base, ...daily, 1) * 1.12
-  const padL = 4, padR = 4, padT = 12, padB = 11
+  const maxY = Math.max(base, ...daily, 1) * 1.15
+  const padL = 8, padR = 8, padT = 22, padB = 20
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = 7
   const slot = plotW / n
-  const bw = slot * 0.58
+  const bw = slot * 0.55
 
   function Y(v) { return padT + plotH * (1 - Math.max(0, v) / maxY) }
 
   dc.setTextColor(new Color("#8E8E93"))
-  dc.setFont(Font.boldSystemFont(7))
-  dc.drawText("7D USED vs BASE", new Point(padL, 0))
+  dc.setFont(Font.boldSystemFont(14))
+  dc.drawText("7D USED vs BASE", new Point(padL, 2))
 
-  dc.setStrokeColor(new Color("#34C759", 0.8))
-  dc.setLineWidth(1)
+  const baseY = Y(base)
+  dc.setStrokeColor(new Color("#34C759", 0.85))
+  dc.setLineWidth(2)
   const basePath = new Path()
-  basePath.move(new Point(padL, Y(base)))
-  basePath.addLine(new Point(width - padR, Y(base)))
+  basePath.move(new Point(padL, baseY))
+  basePath.addLine(new Point(width - padR, baseY))
   dc.addPath(basePath)
   dc.strokePath()
 
@@ -130,10 +133,10 @@ function sparkImage(data) {
     const x = padL + slot * i + (slot - bw) / 2
     const top = Y(v)
     dc.setFillColor(v > base + 0.5 ? new Color("#FF453A") : new Color("#34C759"))
-    dc.fillRect(new Rect(x, top, bw, Math.max(1.5, floorY - top)))
+    dc.fillRect(new Rect(x, top, bw, Math.max(3, floorY - top)))
     dc.setTextColor(new Color("#8E8E93"))
-    dc.setFont(Font.boldSystemFont(7))
-    dc.drawText(days[i], new Point(x + bw / 2 - 2, height - 9))
+    dc.setFont(Font.boldSystemFont(12))
+    dc.drawText(days[i], new Point(x + bw / 2 - 4, height - 16))
   }
   return dc.getImage()
 }
@@ -184,9 +187,9 @@ async function buildWidget(data) {
   row.addSpacer()
 
   const im = row.addImage(sparkImage(data))
-  im.imageSize = new Size(140, 64)
-  im.resizable = false
-  im.containerRelativeShape = false
+  im.imageSize = new Size(CHART_W, CHART_H)
+  im.resizable = true
+  im.applyFillingContentMode()
 
   w.addSpacer(10)
 
