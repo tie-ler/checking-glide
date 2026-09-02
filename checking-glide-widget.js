@@ -5,7 +5,7 @@ const BG = new Color("#0B0B0F")
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "6:07 PM",
+  as_of_time: "6:10 PM",
   available_spend: 0.36,
   daily_income: 181.04,
   daily_fixed: 102.02,
@@ -84,11 +84,13 @@ function bigFont(size) {
   catch (e) { return Font.boldSystemFont(size) }
 }
 
-function sparkImage(data, width, height) {
+function sparkImage(data) {
+  const width = 140
+  const height = 64
   const dc = new DrawContext()
   dc.size = new Size(width, height)
   dc.opaque = true
-  dc.respectScreenScale = true
+  dc.respectScreenScale = false
   dc.setFillColor(BG)
   dc.fillRect(new Rect(0, 0, width, height))
 
@@ -99,17 +101,21 @@ function sparkImage(data, width, height) {
   if (daily.length > 7) daily = daily.slice(-7)
 
   const base = Number(data.nominal_spend) || 55
-  const maxY = Math.max(base, ...daily, 1) * 1.15
-  const padL = 2, padR = 2, padT = 2, padB = 12
+  const maxY = Math.max(base, ...daily, 1) * 1.12
+  const padL = 4, padR = 4, padT = 12, padB = 11
   const plotW = width - padL - padR
   const plotH = height - padT - padB
-  const n = daily.length
+  const n = 7
   const slot = plotW / n
-  const bw = Math.max(6, slot * 0.55)
+  const bw = slot * 0.58
 
-  function Y(v) { return padT + plotH * (1 - v / maxY) }
+  function Y(v) { return padT + plotH * (1 - Math.max(0, v) / maxY) }
 
-  dc.setStrokeColor(new Color("#34C759", 0.75))
+  dc.setTextColor(new Color("#8E8E93"))
+  dc.setFont(Font.boldSystemFont(7))
+  dc.drawText("7D USED vs BASE", new Point(padL, 0))
+
+  dc.setStrokeColor(new Color("#34C759", 0.8))
   dc.setLineWidth(1)
   const basePath = new Path()
   basePath.move(new Point(padL, Y(base)))
@@ -124,10 +130,10 @@ function sparkImage(data, width, height) {
     const x = padL + slot * i + (slot - bw) / 2
     const top = Y(v)
     dc.setFillColor(v > base + 0.5 ? new Color("#FF453A") : new Color("#34C759"))
-    dc.fillRect(new Rect(x, top, bw, Math.max(2, floorY - top)))
+    dc.fillRect(new Rect(x, top, bw, Math.max(1.5, floorY - top)))
     dc.setTextColor(new Color("#8E8E93"))
     dc.setFont(Font.boldSystemFont(7))
-    dc.drawText(days[i], new Point(x + bw / 2 - 2, height - 10))
+    dc.drawText(days[i], new Point(x + bw / 2 - 2, height - 9))
   }
   return dc.getImage()
 }
@@ -175,18 +181,12 @@ async function buildWidget(data) {
   sub.textColor = muted
   sub.lineLimit = 1
 
-  row.addSpacer(8)
+  row.addSpacer()
 
-  const right = row.addStack()
-  right.layoutVertically()
-  right.bottomAlignContent()
-  const cap = right.addText("7D USED vs BASE")
-  cap.font = Font.boldSystemFont(8)
-  cap.textColor = muted
-  cap.rightAlignText()
-  const im = right.addImage(sparkImage(data, 280, 110))
-  im.imageSize = new Size(140, 55)
+  const im = row.addImage(sparkImage(data))
+  im.imageSize = new Size(140, 64)
   im.resizable = false
+  im.containerRelativeShape = false
 
   w.addSpacer(10)
 
