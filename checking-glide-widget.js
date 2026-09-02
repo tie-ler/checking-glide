@@ -7,7 +7,7 @@ const CHART_H = 50
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "6:12 PM",
+  as_of_time: "6:14 PM",
   available_spend: 0.36,
   daily_income: 181.04,
   daily_fixed: 102.02,
@@ -189,7 +189,7 @@ async function buildWidget(data) {
   const im = row.addImage(sparkImage(data))
   im.imageSize = new Size(CHART_W, CHART_H)
   im.resizable = true
-  im.applyFillingContentMode()
+  try { im.applyFittingContentMode() } catch (e) {}
 
   w.addSpacer(10)
 
