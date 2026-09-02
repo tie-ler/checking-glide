@@ -1,13 +1,13 @@
-// Checking Glide — Scriptable widget (Rev 5)
+// Checking Glide — Scriptable widget (Rev 6)
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
-const CHART_W = 132
-const CHART_H = 50
+const CHART_W = 158
+const CHART_H = 76
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "6:14 PM",
+  as_of_time: "6:18 PM",
   available_spend: 0.36,
   daily_income: 181.04,
   daily_fixed: 102.02,
@@ -104,7 +104,7 @@ function sparkImage(data) {
 
   const base = Number(data.nominal_spend) || 55
   const maxY = Math.max(base, ...daily, 1) * 1.15
-  const padL = 8, padR = 8, padT = 22, padB = 20
+  const padL = 8, padR = 6, padT = 22, padB = 22
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = 7
@@ -136,7 +136,7 @@ function sparkImage(data) {
     dc.fillRect(new Rect(x, top, bw, Math.max(3, floorY - top)))
     dc.setTextColor(new Color("#8E8E93"))
     dc.setFont(Font.boldSystemFont(12))
-    dc.drawText(days[i], new Point(x + bw / 2 - 4, height - 16))
+    dc.drawText(days[i], new Point(x + bw / 2 - 4, height - 18))
   }
   return dc.getImage()
 }
@@ -167,15 +167,16 @@ async function buildWidget(data) {
     return w
   }
 
-  label(w, "AVAILABLE SPEND", accent, 10)
-  w.addSpacer(4)
-
   const row = w.addStack()
   row.layoutHorizontally()
-  row.bottomAlignContent()
+  row.topAlignContent()
 
   const left = row.addStack()
   left.layoutVertically()
+  const head = left.addText("AVAILABLE SPEND")
+  head.font = Font.boldSystemFont(10)
+  head.textColor = accent
+  left.addSpacer(4)
   const delta = left.addText(signedMoney(avail))
   delta.font = bigFont(32)
   delta.textColor = accent
@@ -184,7 +185,7 @@ async function buildWidget(data) {
   sub.textColor = muted
   sub.lineLimit = 1
 
-  row.addSpacer()
+  row.addSpacer(8)
 
   const im = row.addImage(sparkImage(data))
   im.imageSize = new Size(CHART_W, CHART_H)
