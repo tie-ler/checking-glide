@@ -5,7 +5,7 @@ const BG = new Color("#0B0B0F")
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "5:57 PM",
+  as_of_time: "6:02 PM",
   available_spend: 0.36,
   daily_income: 181.04,
   daily_fixed: 102.02,
@@ -100,12 +100,12 @@ function sparkImage(data, width, height) {
 
   const base = Number(data.nominal_spend) || 55
   const maxY = Math.max(base, ...daily, 1) * 1.12
-  const padL = 2, padR = 2, padT = 14, padB = 14
+  const padL = 2, padR = 2, padT = 13, padB = 13
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = daily.length
   const slot = plotW / n
-  const bw = Math.max(8, slot * 0.62)
+  const bw = Math.max(7, slot * 0.6)
 
   function Y(v) { return padT + plotH * (1 - v / maxY) }
 
@@ -127,7 +127,7 @@ function sparkImage(data, width, height) {
     dc.fillRect(new Rect(x, top, bw, Math.max(2, floorY - top)))
     dc.setTextColor(new Color("#8E8E93"))
     dc.setFont(Font.boldSystemFont(8))
-    dc.drawText(days[i], new Point(x + bw / 2 - 3, height - 12))
+    dc.drawText(days[i], new Point(x + bw / 2 - 3, height - 11))
   }
 
   dc.setTextColor(new Color("#8E8E93"))
@@ -162,15 +162,15 @@ async function buildWidget(data) {
     return w
   }
 
+  label(w, "AVAILABLE SPEND", accent, 10)
+  w.addSpacer(4)
+
   const row = w.addStack()
   row.layoutHorizontally()
   row.bottomAlignContent()
 
   const left = row.addStack()
   left.layoutVertically()
-  const head = left.addText("AVAILABLE SPEND")
-  head.font = Font.boldSystemFont(10)
-  head.textColor = accent
   const delta = left.addText(signedMoney(avail))
   delta.font = bigFont(32)
   delta.textColor = accent
@@ -178,11 +178,11 @@ async function buildWidget(data) {
   sub.font = Font.mediumSystemFont(11)
   sub.textColor = muted
 
-  row.addSpacer(8)
+  row.addSpacer()
 
-  const im = row.addImage(sparkImage(data, 360, 180))
-  im.imageSize = new Size(180, 90)
-  im.resizable = true
+  const im = row.addImage(sparkImage(data, 300, 140))
+  im.imageSize = new Size(150, 70)
+  im.resizable = false
 
   w.addSpacer(10)
 
