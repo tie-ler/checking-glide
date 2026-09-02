@@ -60,10 +60,17 @@ function addHeader(col, title, color) {
   t.textOpacity = 0.9
 }
 
+function bigFont(size) {
+  try {
+    return new Font("Menlo-Bold", size)
+  } catch (e) {
+    return Font.boldSystemFont(size)
+  }
+}
+
 async function buildWidget(data) {
   const w = new ListWidget()
-  const dark = Color.dynamic(new Color("#0B0B0F"), new Color("#0B0B0F"))
-  w.backgroundColor = dark
+  w.backgroundColor = new Color("#0B0B0F")
   w.setPadding(14, 16, 14, 16)
   w.url = data.grok_url || GROK_URL
 
@@ -75,7 +82,7 @@ async function buildWidget(data) {
     addHeader(w, "CHECKING GLIDE", accent)
     w.addSpacer(6)
     const big = w.addText(signedMoney(data.delta_usd))
-    big.font = Font.monospacedSystemFont(28)
+    big.font = bigFont(28)
     big.textColor = accent
     const sub = w.addText(data.status + "  " + (data.delta_pct >= 0 ? "+" : "") + Number(data.delta_pct).toFixed(1) + "%")
     sub.font = Font.systemFont(12)
@@ -97,7 +104,7 @@ async function buildWidget(data) {
   const left = row.addStack()
   left.layoutVertically()
   const delta = left.addText(signedMoney(data.delta_usd))
-  delta.font = Font.monospacedSystemFont(32)
+  delta.font = bigFont(32)
   delta.textColor = accent
   const pct = left.addText(
     (ahead ? "ahead" : "behind") + "  " +
