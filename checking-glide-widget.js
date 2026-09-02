@@ -1,10 +1,11 @@
-// Checking Glide — Scriptable widget (Rev 4)
+// Checking Glide — Scriptable widget (Rev 5)
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
+const BG = new Color("#0B0B0F")
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "5:45 PM",
+  as_of_time: "5:52 PM",
   available_spend: 0.36,
   daily_income: 181.04,
   daily_fixed: 102.02,
@@ -85,28 +86,30 @@ function bigFont(size) {
 function sparkImage(data, width, height) {
   const dc = new DrawContext()
   dc.size = new Size(width, height)
-  dc.opaque = false
+  dc.opaque = true
   dc.respectScreenScale = true
+  dc.setFillColor(BG)
+  dc.fillRect(new Rect(0, 0, width, height))
 
   let daily = Array.isArray(data.spark_week) && data.spark_week.length
     ? data.spark_week.map(Number)
-    : (Array.isArray(data.spark_used) ? data.spark_used.map(Number) : [Number(data.disc_mtd) || 0])
+    : [Number(data.disc_mtd) || 0]
   while (daily.length < 7) daily.unshift(0)
   if (daily.length > 7) daily = daily.slice(-7)
 
   const base = Number(data.nominal_spend) || 55
-  const maxY = Math.max(base, ...daily, 1) * 1.18
-  const padL = 4, padR = 4, padT = 14, padB = 12
+  const maxY = Math.max(base, ...daily, 1) * 1.12
+  const padL = 2, padR = 2, padT = 12, padB = 14
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = daily.length
   const slot = plotW / n
-  const bw = slot * 0.55
+  const bw = Math.max(8, slot * 0.62)
 
-  function Y(v) { return padT + plotH - (v / maxY) * plotH }
+  function Y(v) { return padT + plotH * (1 - v / maxY) }
 
-  dc.setStrokeColor(new Color("#34C759", 0.7))
-  dc.setLineWidth(1)
+  dc.setStrokeColor(new Color("#34C759", 0.75))
+  dc.setLineWidth(1.5)
   const basePath = new Path()
   basePath.move(new Point(padL, Y(base)))
   basePath.addLine(new Point(width - padR, Y(base)))
@@ -114,27 +117,27 @@ function sparkImage(data, width, height) {
   dc.strokePath()
 
   const days = ["T", "F", "S", "S", "M", "T", "W"]
-  dc.setFont(Font.boldSystemFont(7))
+  const floorY = padT + plotH
   for (let i = 0; i < n; i++) {
     const v = Math.max(0, daily[i])
     const x = padL + slot * i + (slot - bw) / 2
     const top = Y(v)
-    const h = Y(0) - top
-    dc.setFillColor(v > base + 0.5 ? new Color("#FF453A", 0.85) : new Color("#34C759", 0.85))
-    dc.fillRect(new Rect(x, top, bw, Math.max(1, h)))
+    dc.setFillColor(v > base + 0.5 ? new Color("#FF453A") : new Color("#34C759"))
+    dc.fillRect(new Rect(x, top, bw, Math.max(2, floorY - top)))
     dc.setTextColor(new Color("#8E8E93"))
-    dc.drawText(days[i] || "", new Point(x + bw / 2 - 3, height - 11))
+    dc.setFont(Font.boldSystemFont(8))
+    dc.drawText(days[i], new Point(x + bw / 2 - 3, height - 12))
   }
 
   dc.setTextColor(new Color("#8E8E93"))
   dc.setFont(Font.boldSystemFont(8))
-  dc.drawText("7D vs BASE", new Point(padL, 1))
+  dc.drawText("7D vs BASE", new Point(padL, 0))
   return dc.getImage()
 }
 
 async function buildWidget(data) {
   const w = new ListWidget()
-  w.backgroundColor = new Color("#0B0B0F")
+  w.backgroundColor = BG
   w.setPadding(12, 16, 10, 16)
   w.url = data.grok_url || GROK_URL
 
@@ -156,15 +159,15 @@ async function buildWidget(data) {
     return w
   }
 
-  label(w, "AVAILABLE SPEND", accent, 10)
-  w.addSpacer(4)
-
   const row = w.addStack()
   row.layoutHorizontally()
-  row.topAlignContent()
+  row.bottomAlignContent()
 
   const left = row.addStack()
   left.layoutVertically()
+  const head = left.addText("AVAILABLE SPEND")
+  head.font = Font.boldSystemFont(10)
+  head.textColor = accent
   const delta = left.addText(signedMoney(avail))
   delta.font = bigFont(32)
   delta.textColor = accent
@@ -172,12 +175,10 @@ async function buildWidget(data) {
   sub.font = Font.mediumSystemFont(11)
   sub.textColor = muted
 
-  row.addSpacer(10)
+  row.addSpacer(8)
 
-  const right = row.addStack()
-  right.layoutVertically()
-  const im = right.addImage(sparkImage(data, 280, 120))
-  im.imageSize = new Size(140, 60)
+  const im = row.addImage(sparkImage(data, 360, 180))
+  im.imageSize = new Size(180, 90)
   im.resizable = true
 
   w.addSpacer(10)
