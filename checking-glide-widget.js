@@ -5,7 +5,7 @@ const BG = new Color("#0B0B0F")
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "6:02 PM",
+  as_of_time: "6:07 PM",
   available_spend: 0.36,
   daily_income: 181.04,
   daily_fixed: 102.02,
@@ -99,18 +99,18 @@ function sparkImage(data, width, height) {
   if (daily.length > 7) daily = daily.slice(-7)
 
   const base = Number(data.nominal_spend) || 55
-  const maxY = Math.max(base, ...daily, 1) * 1.12
-  const padL = 2, padR = 2, padT = 13, padB = 13
+  const maxY = Math.max(base, ...daily, 1) * 1.15
+  const padL = 2, padR = 2, padT = 2, padB = 12
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = daily.length
   const slot = plotW / n
-  const bw = Math.max(7, slot * 0.6)
+  const bw = Math.max(6, slot * 0.55)
 
   function Y(v) { return padT + plotH * (1 - v / maxY) }
 
   dc.setStrokeColor(new Color("#34C759", 0.75))
-  dc.setLineWidth(1.5)
+  dc.setLineWidth(1)
   const basePath = new Path()
   basePath.move(new Point(padL, Y(base)))
   basePath.addLine(new Point(width - padR, Y(base)))
@@ -126,13 +126,9 @@ function sparkImage(data, width, height) {
     dc.setFillColor(v > base + 0.5 ? new Color("#FF453A") : new Color("#34C759"))
     dc.fillRect(new Rect(x, top, bw, Math.max(2, floorY - top)))
     dc.setTextColor(new Color("#8E8E93"))
-    dc.setFont(Font.boldSystemFont(8))
-    dc.drawText(days[i], new Point(x + bw / 2 - 3, height - 11))
+    dc.setFont(Font.boldSystemFont(7))
+    dc.drawText(days[i], new Point(x + bw / 2 - 2, height - 10))
   }
-
-  dc.setTextColor(new Color("#8E8E93"))
-  dc.setFont(Font.boldSystemFont(8))
-  dc.drawText("7D USED vs BASE", new Point(padL, 0))
   return dc.getImage()
 }
 
@@ -177,11 +173,19 @@ async function buildWidget(data) {
   const sub = left.addText("BASE  " + money(data.nominal_spend) + "    USED  " + money(data.disc_mtd))
   sub.font = Font.mediumSystemFont(11)
   sub.textColor = muted
+  sub.lineLimit = 1
 
-  row.addSpacer()
+  row.addSpacer(8)
 
-  const im = row.addImage(sparkImage(data, 300, 140))
-  im.imageSize = new Size(150, 70)
+  const right = row.addStack()
+  right.layoutVertically()
+  right.bottomAlignContent()
+  const cap = right.addText("7D USED vs BASE")
+  cap.font = Font.boldSystemFont(8)
+  cap.textColor = muted
+  cap.rightAlignText()
+  const im = right.addImage(sparkImage(data, 280, 110))
+  im.imageSize = new Size(140, 55)
   im.resizable = false
 
   w.addSpacer(10)
@@ -203,7 +207,7 @@ async function buildWidget(data) {
   pill("FIXED", money(data.daily_fixed) + " / D")
   pill("PATH", money(data.daily_path) + " / D")
   pill("CONTROL", money(controlShow))
-  pill("FLOOR", money(floorShow))
+  pill("TARGET", money(floorShow))
 
   w.addSpacer(6)
   label(w, "AS OF  " + when, new Color("#636366"), 9)
