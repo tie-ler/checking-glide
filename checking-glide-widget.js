@@ -2,12 +2,12 @@
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
-const CHART_W = 158
-const CHART_H = 76
+const CHART_W = 172
+const CHART_H = 78
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "6:18 PM",
+  as_of_time: "6:21 PM",
   available_spend: 0.36,
   daily_income: 181.04,
   daily_fixed: 102.02,
@@ -104,7 +104,7 @@ function sparkImage(data) {
 
   const base = Number(data.nominal_spend) || 55
   const maxY = Math.max(base, ...daily, 1) * 1.15
-  const padL = 8, padR = 6, padT = 22, padB = 22
+  const padL = 6, padR = 4, padT = 20, padB = 22
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = 7
@@ -115,7 +115,7 @@ function sparkImage(data) {
 
   dc.setTextColor(new Color("#8E8E93"))
   dc.setFont(Font.boldSystemFont(14))
-  dc.drawText("7D USED vs BASE", new Point(padL, 2))
+  dc.drawText("7D USED vs BASE", new Point(padL, 1))
 
   const baseY = Y(base)
   dc.setStrokeColor(new Color("#34C759", 0.85))
@@ -132,7 +132,7 @@ function sparkImage(data) {
     const v = Math.max(0, daily[i])
     const x = padL + slot * i + (slot - bw) / 2
     const top = Y(v)
-    dc.setFillColor(v > base + 0.5 ? new Color("#FF453A") : new Color("#34C759"))
+    dc.setFillColor(v > base + 0.5 ? new Color("#FF453A") : new Color("#FF453A") && v > base + 0.5 ? new Color("#FF453A") : new Color("#34C759"))
     dc.fillRect(new Rect(x, top, bw, Math.max(3, floorY - top)))
     dc.setTextColor(new Color("#8E8E93"))
     dc.setFont(Font.boldSystemFont(12))
@@ -144,7 +144,7 @@ function sparkImage(data) {
 async function buildWidget(data) {
   const w = new ListWidget()
   w.backgroundColor = BG
-  w.setPadding(12, 16, 10, 16)
+  w.setPadding(12, 14, 10, 12)
   w.url = data.grok_url || GROK_URL
 
   const avail = Number(data.available_spend)
@@ -180,12 +180,12 @@ async function buildWidget(data) {
   const delta = left.addText(signedMoney(avail))
   delta.font = bigFont(32)
   delta.textColor = accent
-  const sub = left.addText("BASE  " + money(data.nominal_spend) + "    USED  " + money(data.disc_mtd))
+  const sub = left.addText("BASE  " + money(data.nominal_spend) + "   USED  " + money(data.disc_mtd))
   sub.font = Font.mediumSystemFont(11)
   sub.textColor = muted
   sub.lineLimit = 1
 
-  row.addSpacer(8)
+  row.addSpacer(6)
 
   const im = row.addImage(sparkImage(data))
   im.imageSize = new Size(CHART_W, CHART_H)
