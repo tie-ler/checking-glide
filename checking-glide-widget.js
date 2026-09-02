@@ -1,10 +1,10 @@
-// Checking Glide — Scriptable widget (Rev 2 UI)
+// Checking Glide — Scriptable widget (Rev 4)
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "5:33 PM",
+  as_of_time: "5:45 PM",
   available_spend: 0.36,
   daily_income: 181.04,
   daily_fixed: 102.02,
@@ -14,7 +14,7 @@ const FALLBACK = {
   status: "Spend",
   control: 5048.50,
   floor: 8000,
-  spark_used: [3.24, 51.03],
+  spark_week: [0, 89.69, 0, 102.35, 40.33, 13.24, 41.03],
   grok_url: GROK_URL,
 }
 
@@ -88,23 +88,24 @@ function sparkImage(data, width, height) {
   dc.opaque = false
   dc.respectScreenScale = true
 
-  const daily = Array.isArray(data.spark_used) && data.spark_used.length
-    ? data.spark_used.map(Number)
-    : [Number(data.disc_mtd) || 0]
-  const cum = []
-  let run = 0
-  for (const v of daily) { run += v; cum.push(run) }
+  let daily = Array.isArray(data.spark_week) && data.spark_week.length
+    ? data.spark_week.map(Number)
+    : (Array.isArray(data.spark_used) ? data.spark_used.map(Number) : [Number(data.disc_mtd) || 0])
+  while (daily.length < 7) daily.unshift(0)
+  if (daily.length > 7) daily = daily.slice(-7)
+
   const base = Number(data.nominal_spend) || 55
-  const maxY = Math.max(base, ...cum, 1) * 1.15
-  const padL = 4, padR = 4, padT = 16, padB = 4
+  const maxY = Math.max(base, ...daily, 1) * 1.18
+  const padL = 4, padR = 4, padT = 14, padB = 12
   const plotW = width - padL - padR
   const plotH = height - padT - padB
-  const n = Math.max(cum.length, 2)
+  const n = daily.length
+  const slot = plotW / n
+  const bw = slot * 0.55
 
-  function X(i) { return padL + (i / (n - 1)) * plotW }
   function Y(v) { return padT + plotH - (v / maxY) * plotH }
 
-  dc.setStrokeColor(new Color("#34C759", 0.55))
+  dc.setStrokeColor(new Color("#34C759", 0.7))
   dc.setLineWidth(1)
   const basePath = new Path()
   basePath.move(new Point(padL, Y(base)))
@@ -112,26 +113,22 @@ function sparkImage(data, width, height) {
   dc.addPath(basePath)
   dc.strokePath()
 
-  dc.setFillColor(new Color("#FF453A", 0.22))
-  for (let i = 0; i < daily.length; i++) {
-    const x0 = X(i)
-    const x1 = X(Math.min(i + 1, n - 1))
-    const bw = Math.max(6, (x1 - x0) * 0.55)
-    const h = (daily[i] / maxY) * plotH
-    dc.fillRect(new Rect(x0 - bw / 2, Y(daily[i]), bw, h))
+  const days = ["T", "F", "S", "S", "M", "T", "W"]
+  dc.setFont(Font.boldSystemFont(7))
+  for (let i = 0; i < n; i++) {
+    const v = Math.max(0, daily[i])
+    const x = padL + slot * i + (slot - bw) / 2
+    const top = Y(v)
+    const h = Y(0) - top
+    dc.setFillColor(v > base + 0.5 ? new Color("#FF453A", 0.85) : new Color("#34C759", 0.85))
+    dc.fillRect(new Rect(x, top, bw, Math.max(1, h)))
+    dc.setTextColor(new Color("#8E8E93"))
+    dc.drawText(days[i] || "", new Point(x + bw / 2 - 3, height - 11))
   }
-
-  dc.setStrokeColor(new Color("#EDE9DE"))
-  dc.setLineWidth(2)
-  const line = new Path()
-  line.move(new Point(X(0), Y(cum[0])))
-  for (let i = 1; i < cum.length; i++) line.addLine(new Point(X(i), Y(cum[i])))
-  dc.addPath(line)
-  dc.strokePath()
 
   dc.setTextColor(new Color("#8E8E93"))
   dc.setFont(Font.boldSystemFont(8))
-  dc.drawText("USED vs BASE", new Point(padL, 1))
+  dc.drawText("7D vs BASE", new Point(padL, 1))
   return dc.getImage()
 }
 
