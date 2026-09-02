@@ -1,26 +1,26 @@
 // Checking Glide — Scriptable widget
-// Medium = main. Small = status + Δ only.
+// Hero = dollars you may spend (or must save) TODAY.
+// Support = daily income = how much available rises tomorrow if you spend $0 disc.
 // Home Screen → + → Scriptable → this script.
 
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
-const CLIMB = 4651.50
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  control: 5348.50,
-  target: 5386.94,
-  delta_usd: -38.44,
-  delta_pct: -0.8,
-  status: "Behind",
-  eoy_gap: 4651.50,
-  need_per_day: 38.44,
-  chase_buffer: 1140.47,
-  cards: 539.72,
+  available_spend: 10.36,
+  daily_income: 181.04,
+  daily_fixed: 102.02,
+  daily_path: 24.39,
+  nominal_spend: 54.63,
+  disc_mtd: 44.27,
+  status: "Spend",
+  control: 5048.50,
+  floor: 8000,
+  grok_url: GROK_URL,
 }
 
 async function loadData() {
-  if (!JSON_URL || JSON_URL.includes("PASTE_")) return FALLBACK
   try {
     const req = new Request(JSON_URL)
     req.timeoutInterval = 8
@@ -32,7 +32,7 @@ async function loadData() {
 }
 
 function money(n, digits = 0) {
-  const sign = n < 0 ? "-" : ""
+  const sign = n < 0 ? "\u2212" : ""
   return sign + "$" + Math.abs(n).toLocaleString("en-US", {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
@@ -40,16 +40,16 @@ function money(n, digits = 0) {
 }
 
 function signedMoney(n) {
-  const sign = n > 0 ? "+" : n < 0 ? "−" : ""
+  const sign = n > 0 ? "+" : n < 0 ? "\u2212" : ""
   return sign + "$" + Math.abs(n).toLocaleString("en-US", {
     maximumFractionDigits: 0,
   })
 }
 
-function statusColor(status) {
+function statusColor(status, available) {
   const s = String(status || "").toLowerCase()
-  if (s.includes("ahead")) return new Color("#34C759")
-  if (s.includes("behind")) return new Color("#FF453A")
+  if (s.includes("save") || available < 0) return new Color("#FF453A")
+  if (s.includes("spend") || available > 0) return new Color("#34C759")
   return new Color("#FFD60A")
 }
 
@@ -61,11 +61,8 @@ function addHeader(col, title, color) {
 }
 
 function bigFont(size) {
-  try {
-    return new Font("Menlo-Bold", size)
-  } catch (e) {
-    return Font.boldSystemFont(size)
-  }
+  try { return new Font("Menlo-Bold", size) }
+  catch (e) { return Font.boldSystemFont(size) }
 }
 
 async function buildWidget(data) {
@@ -74,27 +71,28 @@ async function buildWidget(data) {
   w.setPadding(14, 16, 14, 16)
   w.url = data.grok_url || GROK_URL
 
+  const avail = Number(data.available_spend)
   const family = config.widgetFamily || "medium"
-  const accent = statusColor(data.status)
-  const ahead = (data.delta_usd || 0) >= 0
+  const accent = statusColor(data.status, avail)
+  const verb = avail < 0 ? "SAVE TODAY" : avail === 0 ? "FLAT" : "SPEND TODAY"
 
   if (family === "small") {
-    addHeader(w, "CHECKING GLIDE", accent)
+    addHeader(w, verb, accent)
     w.addSpacer(6)
-    const big = w.addText(signedMoney(data.delta_usd))
+    const big = w.addText(signedMoney(avail))
     big.font = bigFont(28)
     big.textColor = accent
-    const sub = w.addText(data.status + "  " + (data.delta_pct >= 0 ? "+" : "") + Number(data.delta_pct).toFixed(1) + "%")
+    const sub = w.addText("income " + money(data.daily_income) + "/d")
     sub.font = Font.systemFont(12)
     sub.textColor = Color.gray()
     w.addSpacer()
-    const foot = w.addText(money(data.control) + " → $10k")
+    const foot = w.addText(money(data.control) + "  floor $8k")
     foot.font = Font.systemFont(11)
     foot.textColor = Color.gray()
     return w
   }
 
-  addHeader(w, "EOY $10K  ·  X MONEY", accent)
+  addHeader(w, verb, accent)
   w.addSpacer(8)
 
   const row = w.addStack()
@@ -103,14 +101,10 @@ async function buildWidget(data) {
 
   const left = row.addStack()
   left.layoutVertically()
-  const delta = left.addText(signedMoney(data.delta_usd))
+  const delta = left.addText(signedMoney(avail))
   delta.font = bigFont(32)
   delta.textColor = accent
-  const pct = left.addText(
-    (ahead ? "ahead" : "behind") + "  " +
-    (data.delta_pct >= 0 ? "+" : "") +
-    Number(data.delta_pct).toFixed(1) + "% of climb"
-  )
+  const pct = left.addText("nominal " + money(data.nominal_spend) + "  \u2212  disc " + money(data.disc_mtd))
   pct.font = Font.systemFont(12)
   pct.textColor = Color.gray()
 
@@ -118,15 +112,18 @@ async function buildWidget(data) {
 
   const right = row.addStack()
   right.layoutVertically()
-  right.centerAlignContent()
-  const st = right.addText(String(data.status).toUpperCase())
-  st.font = Font.boldSystemFont(13)
-  st.textColor = accent
-  st.rightAlignText()
-  const need = right.addText(money(data.need_per_day) + "/day")
-  need.font = Font.systemFont(12)
-  need.textColor = Color.gray()
-  need.rightAlignText()
+  const incL = right.addText("DAILY INCOME")
+  incL.font = Font.systemFont(10)
+  incL.textColor = Color.gray()
+  incL.rightAlignText()
+  const inc = right.addText(money(data.daily_income) + "/d")
+  inc.font = Font.boldSystemFont(16)
+  inc.textColor = Color.white()
+  inc.rightAlignText()
+  const hint = right.addText("hero + this if $0 disc")
+  hint.font = Font.systemFont(10)
+  hint.textColor = Color.gray()
+  hint.rightAlignText()
 
   w.addSpacer(12)
 
@@ -143,13 +140,13 @@ async function buildWidget(data) {
     v.textColor = Color.white()
     meta.addSpacer(14)
   }
+  pill("FIXED", money(data.daily_fixed) + "/d")
+  pill("PATH", money(data.daily_path) + "/d")
   pill("CONTROL", money(data.control))
-  pill("TARGET", money(data.target))
-  pill("EOY GAP", money(data.eoy_gap))
-  if (data.chase_buffer != null) pill("CHASE", money(data.chase_buffer))
+  pill("FLOOR", money(data.floor))
 
   w.addSpacer()
-  const asof = w.addText("as of " + (data.as_of || "") + "  ·  tap → Grok")
+  const asof = w.addText("as of " + (data.as_of || "") + "  \u00b7  tap \u2192 Grok")
   asof.font = Font.systemFont(10)
   asof.textColor = new Color("#636366")
   return w
@@ -157,9 +154,6 @@ async function buildWidget(data) {
 
 const data = await loadData()
 const widget = await buildWidget(data)
-if (config.runsInWidget) {
-  Script.setWidget(widget)
-} else {
-  await widget.presentMedium()
-}
+if (config.runsInWidget) Script.setWidget(widget)
+else await widget.presentMedium()
 Script.complete()
