@@ -1,13 +1,14 @@
 {
   "as_of": "2026-09-02",
-  "control": 5348.50,
+  "control": 5048.50,
   "target": 5386.94,
-  "delta_usd": -38.44,
-  "delta_pct": -0.8,
+  "delta_usd": -338.44,
+  "delta_pct": -7.3,
   "status": "Behind",
-  "eoy_gap": 4651.50,
-  "need_per_day": 38.44,
+  "eoy_gap": 4951.50,
+  "need_per_day": 41.26,
   "chase_buffer": 1140.47,
   "cards": 539.72,
+  "climb_per_day": 38.44,
   "grok_url": "https://grok.com"
 }
