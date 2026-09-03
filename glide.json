@@ -2,15 +2,15 @@
   "rev": 14,
   "locked_rev": 13,
   "as_of": "2026-09-03",
-  "as_of_time": "6:24 AM",
-  "available_spend": 49.60,
+  "as_of_time": "6:39 AM",
+  "available_spend": 43.74,
   "daily_income": 177.32,
   "daily_fixed": 100.17,
   "daily_path": 27.55,
   "nominal_spend": 49.60,
-  "used_today": 0.00,
+  "used_today": 5.86,
   "disc_mtd": 54.27,
-  "spark_week": [22.41, 0, 102.35, 40.33, 13.24, 41.03, 0],
+  "spark_week": [22.41, 0, 102.35, 40.33, 13.24, 41.03, 5.86],
   "status": "Spend",
   "control": 4986.41,
   "control_avg": 2928.44,
@@ -26,5 +26,5 @@
   "target": 10000,
   "income_basis": "90d jump-filtered payroll+$400+interest+cashback / 90",
   "fixed_basis": "365d rent+Upgrade+MONEYLINE+Austin+GEICO+groceries+supplements+gas / 365",
-  "grok_url": "https://grok.com/?q=CHECKING%20GLIDE%20TAP.%20Recompute%20I%20and%20F%20every%20run.%0Agas+grocery%20in%20F%20at%20365d.%20drip%3Dmax(0%2Crate90-rate365)%20on%20variable%20F%20only.%0Aavailable%3Dnominal-used_today.%20Write%20glide.json."
+  "grok_url": "https://grok.com/?q=CHECKING%20GLIDE%20TAP.%20Recompute%20every%20run.%20Write%20glide.json.%20Keep%20this%20grok_url.%0A%0ACONTROL%3DX%20Money%20checking%20spot.%20CASH%20pill%3D30d%20EOD%20avg.%20TARGET%3D10000.%0AI%3D90d%20jump-filtered%20payroll%2B%24400%20STREAM%2Binterest%2Bcard%20cashback%20/90.%20Dedupe%20pays%20within%206d.%20No%20transfers.%0AF%20scheduled%20%28no%2090d%20drip%29%3A%20rent/Lexington%2C%20Upgrade%2C%20MONEYLINE%2C%20City%20of%20Austin%2C%20GEICO.%0AF%20variable%20365d%20rate%20%28drip%20if%2090d%20hotter%29%3A%20GAS%20%28Refuel%2C%20Circle%20K%2C%20Shell%2C%20Exxon%2C%20Chevron%2C%20Empire%2C%20not%20Walmart%29%2C%20GROCERIES%20%28HEB%2C%20Central%20Market%2C%2099%20Ranch%2C%20Walmart%2C%20Target%2C%20Trader%20Joe%27s%2C%20Whole%20Foods%2C%20Fiesta%2C%20Freshville%20%E2%80%94%20not%20restaurants%29%2C%20supplements.%0Adaily_gas%3Dgas365/365.%20daily_grocery%3Dgroc365/365.%0Adrip_gas%3Dmax%280%2C%20gas90/90-daily_gas%29.%20drip_groc%3Dmax%280%2C%20groc90/90-daily_grocery%29.%20drip_supp%20same%20if%20material.%0Apath%3Dmax%280%2C%2810000-spot%29/182%29%20until%202026-10-01%20else%2030d%20avg.%0Anominal%3DI-F-path.%0Aused_today%3Dtoday%20non-F%20discretionary%20%28restaurants%2C%20shopping%2C%20travel%29%20%2B%20drip_gas%20%2B%20drip_groc%20%2B%20drip_supp.%0AFills%20and%20grocery%20tickets%20do%20NOT%20go%20in%20used_today.%20AVAIL%3Dnominal-used_today.%0A%0AAfter%20writing%20JSON%2C%20output%3A%0A1%29%20Widget%20line%3A%20AVAIL%2C%20BASE%2C%20USED%2C%20I%2C%20F%2C%20RESERVE%2C%20CASH%2C%20TARGET%0A2%29%20Recent%20vs%20historical%20table%3A%20category%20%7C%20365d%20%24/d%20%7C%2090d%20%24/d%20%7C%20drip%0A3%29%20Mermaid%20bar%20chart%20comparing%2090d%20vs%20365d%20%24/d%20for%20gas%2C%20grocery%2C%20supplements%2C%20and%20any%20other%20variable%20line%0A4%29%20Today%E2%80%99s%20disc%20list%20%28non-F%20only%29%0A5%29%20Confirm%20JSON%20pushed"
 }
