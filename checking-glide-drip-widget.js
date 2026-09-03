@@ -73,7 +73,7 @@ function line(parent, label, plan, actual, drip) {
 async function buildWidget(data) {
   const w = new ListWidget()
   w.backgroundColor = BG
-  w.setPadding(12, 16, 10, 14)
+  w.setPadding(12, 16, 12, 14)
   w.url = data.grok_url || GROK_URL
 
   const rows = [
@@ -107,14 +107,10 @@ async function buildWidget(data) {
     line(w, item[0], item[1], item[2], item[3])
   })
 
-  w.addSpacer(8)
+  w.addSpacer()
   const foot = w.addText("F  " + money(n(data.daily_fixed), 0) + " / D      USED  " + money(n(data.used_today), 0))
   foot.font = Font.mediumSystemFont(11)
   foot.textColor = MUTED
-  w.addSpacer(4)
-  const when = w.addText("AS OF  " + String(data.as_of || "") + "  " + String(data.as_of_time || ""))
-  when.font = Font.boldSystemFont(9)
-  when.textColor = new Color("#636366")
   return w
 }
 
