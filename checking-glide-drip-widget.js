@@ -1,5 +1,5 @@
 // Checking Glide — Drip widget (Rev 17)
-const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
+const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/spend.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
 const INK = Color.white()
@@ -9,7 +9,7 @@ const GREEN = new Color("#34C759")
 
 const FALLBACK = {
   as_of: "2026-09-03",
-  as_of_time: "7:20 AM",
+  as_of_time: "7:26 AM",
   daily_fixed: 116.03,
   used_today: 5.56,
   daily_gas: 4.94,
@@ -21,9 +21,6 @@ const FALLBACK = {
   pharmacy_365_rate: 0.89,
   pharmacy_90d_rate: 0.59,
   pharmacy_overrun_drip: 0,
-  f_rent: 48.14,
-  f_moneyline: 30.11,
-  f_upgrade: 9.91,
   grok_url: GROK_URL,
 }
 
@@ -31,129 +28,81 @@ async function loadData() {
   try {
     const req = new Request(JSON_URL)
     req.timeoutInterval = 8
-    const d = await req.loadJSON()
-    return { ...FALLBACK, ...d }
+    return { ...FALLBACK, ...(await req.loadJSON()) }
   } catch (e) {
     return FALLBACK
   }
 }
 
 function n(v) { return Number(v) || 0 }
-
-function money(x, digits = 2) {
-  return "$" + Math.abs(x).toLocaleString("en-US", {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  })
-}
-
-function stamp(data) {
-  const day = String(data.as_of || "").replace(/\s+.*/, "")
-  const t = String(data.as_of_time || "")
-  return (day || "") + (t ? "  " + t : "")
-}
-
-function addHeader(col, text, color, size) {
-  const t = col.addText(text)
-  t.font = Font.boldSystemFont(size || 10)
-  t.textColor = color
-  return t
-}
-
-function row(stack, label, plan, actual, drip) {
-  const r = stack.addStack()
-  r.layoutHorizontally()
-  r.centerAlignContent()
-
-  const name = r.addText(label)
-  name.font = Font.boldSystemFont(11)
-  name.textColor = INK
-  name.lineLimit = 1
-
-  r.addSpacer()
-
-  const p = r.addText(money(plan))
-  p.font = Font.mediumSystemFont(11)
-  p.textColor = MUTED
-  p.rightAlignText()
-
-  r.addSpacer(10)
-
-  const a = r.addText(money(actual))
-  a.font = Font.mediumSystemFont(11)
-  a.textColor = INK
-  a.rightAlignText()
-
-  r.addSpacer(10)
-
-  const hot = drip > 0.004
-  const d = r.addText((hot ? "+" : "") + money(drip))
-  d.font = Font.boldSystemFont(12)
-  d.textColor = hot ? RED : GREEN
-  d.rightAlignText()
-}
-
-function colHead(stack) {
-  const r = stack.addStack()
-  r.layoutHorizontally()
-  const l = r.addText(" ")
-  l.font = Font.boldSystemFont(9)
-  l.textColor = MUTED
-  r.addSpacer()
-  function h(s) {
-    const t = r.addText(s)
-    t.font = Font.boldSystemFont(9)
-    t.textColor = MUTED
-    r.addSpacer(10)
-    return t
-  }
-  h("365")
-  h("90")
-  const d = r.addText("DRIP")
-  d.font = Font.boldSystemFont(9)
-  d.textColor = MUTED
+function money(x, d = 2) {
+  return "$" + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d })
 }
 
 async function buildWidget(data) {
   const w = new ListWidget()
   w.backgroundColor = BG
-  w.setPadding(12, 16, 10, 14)
+  w.setPadding(10, 14, 8, 12)
   w.url = data.grok_url || GROK_URL
 
-  const gasP = n(data.daily_gas != null ? data.daily_gas : data.f_gas)
-  const gasA = n(data.gas_90d_rate)
-  const gasD = n(data.gas_overrun_drip)
-  const groP = n(data.daily_grocery != null ? data.daily_grocery : data.f_grocery)
-  const groA = n(data.grocery_90d_rate)
-  const groD = n(data.grocery_overrun_drip)
-  const phP = n(data.pharmacy_365_rate != null ? data.pharmacy_365_rate : data.f_pharmacy)
-  const phA = n(data.pharmacy_90d_rate)
-  const phD = n(data.pharmacy_overrun_drip)
-  const dripSum = gasD + groD + phD
+  const rows = [
+    ["GAS", n(data.daily_gas), n(data.gas_90d_rate), n(data.gas_overrun_drip)],
+    ["GROCERY", n(data.daily_grocery), n(data.grocery_90d_rate), n(data.grocery_overrun_drip)],
+    ["PHARMACY", n(data.pharmacy_365_rate != null ? data.pharmacy_365_rate : data.f_pharmacy), n(data.pharmacy_90d_rate), n(data.pharmacy_overrun_drip)],
+  ]
+  const dripSum = rows.reduce((s, r) => s + r[3], 0)
 
-  addHeader(w, "DRIP   90 vs 365", MUTED, 10)
+  const title = w.addText("DRIP    90 vs 365")
+  title.font = Font.boldSystemFont(9)
+  title.textColor = MUTED
   w.addSpacer(2)
   const big = w.addText((dripSum > 0 ? "+" : "") + money(dripSum, 2) + "  / D")
-  big.font = Font.boldSystemFont(26)
+  big.font = Font.boldSystemFont(22)
   big.textColor = dripSum > 0.004 ? RED : GREEN
 
-  w.addSpacer(8)
-  colHead(w)
-  w.addSpacer(4)
-  row(w, "GAS", gasP, gasA, gasD)
-  w.addSpacer(5)
-  row(w, "GROCERY", groP, groA, groD)
-  w.addSpacer(5)
-  row(w, "PHARMACY", phP, phA, phD)
+  w.addSpacer(6)
+  const head = w.addStack()
+  head.layoutHorizontally()
+  const h0 = head.addText(" ")
+  h0.font = Font.boldSystemFont(8)
+  head.addSpacer()
+  ;["365", "90", "DRIP"].forEach((s, i) => {
+    const t = head.addText(s)
+    t.font = Font.boldSystemFont(8)
+    t.textColor = MUTED
+    if (i < 2) head.addSpacer(12)
+  })
 
-  w.addSpacer(8)
-  const foot = w.addText("F  " + money(n(data.daily_fixed), 0) + " / D     USED  " + money(n(data.used_today), 0))
-  foot.font = Font.mediumSystemFont(11)
-  foot.textColor = MUTED
+  rows.forEach((item) => {
+    w.addSpacer(4)
+    const r = w.addStack()
+    r.layoutHorizontally()
+    r.centerAlignContent()
+    const name = r.addText(item[0])
+    name.font = Font.boldSystemFont(10)
+    name.textColor = INK
+    r.addSpacer()
+    const p = r.addText(money(item[1]))
+    p.font = Font.mediumSystemFont(10)
+    p.textColor = MUTED
+    r.addSpacer(12)
+    const a = r.addText(money(item[2]))
+    a.font = Font.mediumSystemFont(10)
+    a.textColor = INK
+    r.addSpacer(12)
+    const hot = item[3] > 0.004
+    const d = r.addText((hot ? "+" : "") + money(item[3]))
+    d.font = Font.boldSystemFont(11)
+    d.textColor = hot ? RED : GREEN
+  })
 
   w.addSpacer(6)
-  const when = w.addText("AS OF  " + stamp(data))
-  when.font = Font.boldSystemFont(9)
+  const foot = w.addText("F  " + money(n(data.daily_fixed), 0) + " / D      USED  " + money(n(data.used_today), 0))
+  foot.font = Font.mediumSystemFont(10)
+  foot.textColor = MUTED
+  w.addSpacer(3)
+  const when = w.addText("AS OF  " + String(data.as_of || "") + "  " + String(data.as_of_time || ""))
+  when.font = Font.boldSystemFont(8)
   when.textColor = new Color("#636366")
   return w
 }
