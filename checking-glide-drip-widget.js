@@ -1,4 +1,4 @@
-// Checking Glide — Drip widget (Rev 17)
+// Checking Glide — Drip widget (Rev 18)
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/spend.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
@@ -6,10 +6,11 @@ const INK = Color.white()
 const MUTED = new Color("#8E8E93")
 const RED = new Color("#FF453A")
 const GREEN = new Color("#34C759")
+const COL = 58
 
 const FALLBACK = {
   as_of: "2026-09-03",
-  as_of_time: "7:26 AM",
+  as_of_time: "7:31 AM",
   daily_fixed: 116.03,
   used_today: 5.56,
   daily_gas: 4.94,
@@ -36,13 +37,43 @@ async function loadData() {
 
 function n(v) { return Number(v) || 0 }
 function money(x, d = 2) {
-  return "$" + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d })
+  return "$" + Math.abs(x).toLocaleString("en-US", {
+    minimumFractionDigits: d,
+    maximumFractionDigits: d,
+  })
+}
+
+function cell(row, text, color, bold, size) {
+  const s = row.addStack()
+  s.size = new Size(COL, 16)
+  s.layoutHorizontally()
+  s.addSpacer()
+  const t = s.addText(text)
+  t.font = bold ? Font.boldSystemFont(size) : Font.mediumSystemFont(size)
+  t.textColor = color
+  t.rightAlignText()
+  t.lineLimit = 1
+}
+
+function line(parent, label, plan, actual, drip) {
+  const r = parent.addStack()
+  r.layoutHorizontally()
+  r.centerAlignContent()
+  const name = r.addText(label)
+  name.font = Font.boldSystemFont(11)
+  name.textColor = INK
+  name.lineLimit = 1
+  r.addSpacer()
+  cell(r, money(plan), MUTED, false, 11)
+  cell(r, money(actual), INK, false, 11)
+  const hot = drip > 0.004
+  cell(r, (hot ? "+" : "") + money(drip), hot ? RED : GREEN, true, 11)
 }
 
 async function buildWidget(data) {
   const w = new ListWidget()
   w.backgroundColor = BG
-  w.setPadding(10, 14, 8, 12)
+  w.setPadding(12, 16, 10, 14)
   w.url = data.grok_url || GROK_URL
 
   const rows = [
@@ -53,56 +84,36 @@ async function buildWidget(data) {
   const dripSum = rows.reduce((s, r) => s + r[3], 0)
 
   const title = w.addText("DRIP    90 vs 365")
-  title.font = Font.boldSystemFont(9)
+  title.font = Font.boldSystemFont(10)
   title.textColor = MUTED
   w.addSpacer(2)
   const big = w.addText((dripSum > 0 ? "+" : "") + money(dripSum, 2) + "  / D")
-  big.font = Font.boldSystemFont(22)
+  big.font = Font.boldSystemFont(24)
   big.textColor = dripSum > 0.004 ? RED : GREEN
 
-  w.addSpacer(6)
+  w.addSpacer(8)
   const head = w.addStack()
   head.layoutHorizontally()
-  const h0 = head.addText(" ")
-  h0.font = Font.boldSystemFont(8)
+  head.centerAlignContent()
+  const spacer = head.addText(" ")
+  spacer.font = Font.boldSystemFont(9)
   head.addSpacer()
-  ;["365", "90", "DRIP"].forEach((s, i) => {
-    const t = head.addText(s)
-    t.font = Font.boldSystemFont(8)
-    t.textColor = MUTED
-    if (i < 2) head.addSpacer(12)
-  })
+  cell(head, "365", MUTED, true, 9)
+  cell(head, "90", MUTED, true, 9)
+  cell(head, "DRIP", MUTED, true, 9)
 
   rows.forEach((item) => {
-    w.addSpacer(4)
-    const r = w.addStack()
-    r.layoutHorizontally()
-    r.centerAlignContent()
-    const name = r.addText(item[0])
-    name.font = Font.boldSystemFont(10)
-    name.textColor = INK
-    r.addSpacer()
-    const p = r.addText(money(item[1]))
-    p.font = Font.mediumSystemFont(10)
-    p.textColor = MUTED
-    r.addSpacer(12)
-    const a = r.addText(money(item[2]))
-    a.font = Font.mediumSystemFont(10)
-    a.textColor = INK
-    r.addSpacer(12)
-    const hot = item[3] > 0.004
-    const d = r.addText((hot ? "+" : "") + money(item[3]))
-    d.font = Font.boldSystemFont(11)
-    d.textColor = hot ? RED : GREEN
+    w.addSpacer(5)
+    line(w, item[0], item[1], item[2], item[3])
   })
 
-  w.addSpacer(6)
+  w.addSpacer(8)
   const foot = w.addText("F  " + money(n(data.daily_fixed), 0) + " / D      USED  " + money(n(data.used_today), 0))
-  foot.font = Font.mediumSystemFont(10)
+  foot.font = Font.mediumSystemFont(11)
   foot.textColor = MUTED
-  w.addSpacer(3)
+  w.addSpacer(4)
   const when = w.addText("AS OF  " + String(data.as_of || "") + "  " + String(data.as_of_time || ""))
-  when.font = Font.boldSystemFont(8)
+  when.font = Font.boldSystemFont(9)
   when.textColor = new Color("#636366")
   return w
 }
