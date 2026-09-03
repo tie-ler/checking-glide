@@ -1,25 +1,25 @@
-// Checking Glide — Scriptable widget (Rev 13)
-const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
+// Checking Glide — Scriptable widget (Rev 17)
+const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/spend.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
 const CHART_W = 172
 const CHART_H = 78
 
 const FALLBACK = {
-  as_of: "2026-09-02",
-  as_of_time: "9:58 PM",
-  available_spend: 12.51,
-  daily_income: 176.07,
-  daily_fixed: 95.32,
-  daily_path: 27.21,
-  nominal_spend: 53.54,
-  used_today: 41.03,
+  as_of: "2026-09-03",
+  as_of_time: "7:26 AM",
+  available_spend: 26.78,
+  daily_income: 175.92,
+  daily_fixed: 116.03,
+  daily_path: 27.55,
+  nominal_spend: 32.34,
+  used_today: 5.56,
   disc_mtd: 54.27,
   status: "Spend",
-  control: 5048.50,
+  control: 4986.41,
   control_avg: 2928.44,
   floor: 10000,
-  spark_week: [0, 89.69, 0, 102.35, 40.33, 13.24, 41.03],
+  spark_week: [22.41, 0, 102.35, 40.33, 13.24, 41.03, 5.56],
   grok_url: GROK_URL,
 }
 
