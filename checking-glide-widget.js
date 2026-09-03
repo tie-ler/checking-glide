@@ -1,4 +1,4 @@
-// Checking Glide — Scriptable widget (Rev 6)
+// Checking Glide — Scriptable widget (Rev 8)
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
@@ -7,12 +7,13 @@ const CHART_H = 78
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "6:21 PM",
-  available_spend: 0.36,
-  daily_income: 181.04,
-  daily_fixed: 102.02,
-  daily_path: 24.39,
-  nominal_spend: 54.63,
+  as_of_time: "7:18 PM",
+  available_spend: 12.51,
+  daily_income: 176.07,
+  daily_fixed: 95.32,
+  daily_path: 27.21,
+  nominal_spend: 53.54,
+  used_today: 41.03,
   disc_mtd: 54.27,
   status: "Spend",
   control: 5048.50,
@@ -31,6 +32,13 @@ async function loadData() {
   } catch (e) {
     return FALLBACK
   }
+}
+
+function usedToday(data) {
+  if (data.used_today != null) return Number(data.used_today)
+  if (Array.isArray(data.spark_week) && data.spark_week.length)
+    return Number(data.spark_week[data.spark_week.length - 1]) || 0
+  return Number(data.disc_mtd) || 0
 }
 
 function money(n, digits = 0) {
@@ -98,7 +106,7 @@ function sparkImage(data) {
 
   let daily = Array.isArray(data.spark_week) && data.spark_week.length
     ? data.spark_week.map(Number)
-    : [Number(data.disc_mtd) || 0]
+    : [usedToday(data)]
   while (daily.length < 7) daily.unshift(0)
   if (daily.length > 7) daily = daily.slice(-7)
 
@@ -132,7 +140,7 @@ function sparkImage(data) {
     const v = Math.max(0, daily[i])
     const x = padL + slot * i + (slot - bw) / 2
     const top = Y(v)
-    dc.setFillColor(v > base + 0.5 ? new Color("#FF453A") : new Color("#FF453A") && v > base + 0.5 ? new Color("#FF453A") : new Color("#34C759"))
+    dc.setFillColor(v > base + 0.5 ? new Color("#FF453A") : new Color("#34C759"))
     dc.fillRect(new Rect(x, top, bw, Math.max(3, floorY - top)))
     dc.setTextColor(new Color("#8E8E93"))
     dc.setFont(Font.boldSystemFont(12))
@@ -155,6 +163,7 @@ async function buildWidget(data) {
   const when = stamp(data)
   const controlShow = Number(data.control_avg != null ? data.control_avg : data.control)
   const floorShow = Number(data.floor != null ? data.floor : 10000)
+  const used = usedToday(data)
 
   if (family === "small") {
     label(w, "AVAILABLE SPEND", accent, 10)
@@ -180,7 +189,7 @@ async function buildWidget(data) {
   const delta = left.addText(signedMoney(avail))
   delta.font = bigFont(32)
   delta.textColor = accent
-  const sub = left.addText("BASE  " + money(data.nominal_spend) + "   USED  " + money(data.disc_mtd))
+  const sub = left.addText("BASE  " + money(data.nominal_spend) + "   USED  " + money(used))
   sub.font = Font.mediumSystemFont(11)
   sub.textColor = muted
   sub.lineLimit = 1
