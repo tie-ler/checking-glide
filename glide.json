@@ -2,15 +2,16 @@
   "rev": 8,
   "locked_rev": 7,
   "as_of": "2026-09-02",
-  "as_of_time": "6:52 PM",
-  "available_spend": -0.73,
+  "as_of_time": "7:18 PM",
+  "available_spend": 12.51,
   "daily_income": 176.07,
   "daily_fixed": 95.32,
   "daily_path": 27.21,
   "nominal_spend": 53.54,
+  "used_today": 41.03,
   "disc_mtd": 54.27,
   "spark_week": [0, 89.69, 0, 102.35, 40.33, 13.24, 41.03],
-  "status": "Save",
+  "status": "Spend",
   "control": 5048.50,
   "control_avg": 2928.44,
   "floor": 10000,
@@ -19,5 +20,5 @@
   "target": 10000,
   "income_basis": "90d jump-filtered payroll+$400+interest+cashback / 90",
   "fixed_basis": "365d rent+Upgrade+MONEYLINE+Austin+GEICO+HEB+supplements / 365",
-  "grok_url": "https://grok.com/?q=CHECKING%20GLIDE%20TAP.%20Recompute%20I%20and%20F%20every%20run.%0ACONTROL%3D%20X%20Money%20checking%20spot.%20control_avg%3D30d%20EOD.%0AIncome%2090d%3A%20payroll%20%2B%20%24400%20STREAM%20%2B%20interest%20%2B%20card%20cashback.%20Dedupe%20pays%20within%206d.%20No%20transfers.%0AFixed%20365d%3A%20Lexington%2Frent%2C%20Upgrade%2C%20MONEYLINE%2C%20City%20of%20Austin%2C%20GEICO%2C%20typical%20HEB%2C%20supplements.%20No%20jumps%20%3E%24500%20bike%2Ftravel.%0Adaily_income%3Dinc90%2F90.%20daily_fixed%3Dfix365%2F365.%0Apath%3Dmax(0%2C(10000-spot)%2F182)%20until%202026-10-01%20else%20use%2030d%20avg.%0Anominal%3DI-F-path.%20available%3Dnominal-disc_mtd.%0AWrite%20glide.json%20main.%20Keep%20grok_url."
+  "grok_url": "https://grok.com/?q=CHECKING%20GLIDE%20TAP.%20Recompute%20I%20and%20F%20every%20run.%0Aused_today%20%3D%20discretionary%20TODAY%20only.%20disc_mtd%20kept%20for%20notes%20only.%0Aavailable%20%3D%20nominal%20-%20used_today.%20nominal%20%3D%20I%20-%20F%20-%20path.%0Apath%20%3D%20max(0%2C(10000-spot)%2F182)%20until%202026-10-01.%0AI%20%3D%2090d%20jump-filtered%20%2F%2090.%20F%20%3D%20365d%20labeled%20fixed%20%2F%20365.%0AWrite%20glide.json.%20Keep%20grok_url."
 }
