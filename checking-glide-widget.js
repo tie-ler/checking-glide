@@ -7,7 +7,7 @@ const CHART_H = 78
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "9:43 PM",
+  as_of_time: "9:47 PM",
   available_spend: 12.51,
   daily_income: 176.07,
   daily_fixed: 95.32,
@@ -232,7 +232,7 @@ async function buildWidget(data) {
   pill("INCOME", money(data.daily_income) + " / D")
   pill("FIXED", money(data.daily_fixed) + " / D")
   pill("RESERVE", money(data.daily_path) + " / D")
-  pill("ACCT AVG", money(controlShow))
+  pill("CASH", money(controlShow))
   pill("TARGET", money(floorShow))
 
   w.addSpacer(6)
