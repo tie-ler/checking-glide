@@ -1,4 +1,4 @@
-// Checking Glide — Scriptable widget (Rev 8)
+// Checking Glide — Scriptable widget (Rev 9)
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
@@ -7,7 +7,7 @@ const CHART_H = 78
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "7:18 PM",
+  as_of_time: "9:29 PM",
   available_spend: 12.51,
   daily_income: 176.07,
   daily_fixed: 95.32,
@@ -94,7 +94,21 @@ function bigFont(size) {
   catch (e) { return Font.boldSystemFont(size) }
 }
 
-function sparkImage(data) {
+function dashH(dc, x1, x2, y, color, dash, gap, width) {
+  dc.setStrokeColor(color)
+  dc.setLineWidth(width)
+  let x = x1
+  while (x < x2) {
+    const p = new Path()
+    p.move(new Point(x, y))
+    p.addLine(new Point(Math.min(x + dash, x2), y))
+    dc.addPath(p)
+    dc.strokePath()
+    x += dash + gap
+  }
+}
+
+function sparkImage(data, accent) {
   const width = CHART_W * 2
   const height = CHART_H * 2
   const dc = new DrawContext()
@@ -111,8 +125,9 @@ function sparkImage(data) {
   if (daily.length > 7) daily = daily.slice(-7)
 
   const base = Number(data.nominal_spend) || 55
-  const maxY = Math.max(base, ...daily, 1) * 1.15
-  const padL = 6, padR = 4, padT = 20, padB = 22
+  const avg = daily.reduce((a, b) => a + b, 0) / daily.length
+  const maxY = Math.max(base, avg, ...daily, 1) * 1.15
+  const padL = 6, padR = 28, padT = 20, padB = 22
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = 7
@@ -125,14 +140,12 @@ function sparkImage(data) {
   dc.setFont(Font.boldSystemFont(14))
   dc.drawText("7D USED vs BASE", new Point(padL, 1))
 
-  const baseY = Y(base)
-  dc.setStrokeColor(new Color("#34C759", 0.85))
-  dc.setLineWidth(2)
-  const basePath = new Path()
-  basePath.move(new Point(padL, baseY))
-  basePath.addLine(new Point(width - padR, baseY))
-  dc.addPath(basePath)
-  dc.strokePath()
+  dashH(dc, padL, width - padR, Y(base), new Color("#8E8E93", 0.7), 5, 5, 2)
+  dashH(dc, padL, width - padR, Y(avg), accent, 4, 6, 2)
+
+  dc.setTextColor(accent)
+  dc.setFont(Font.boldSystemFont(11))
+  dc.drawText("AVG", new Point(width - padR + 2, Y(avg) - 6))
 
   const days = ["T", "F", "S", "S", "M", "T", "W"]
   const floorY = padT + plotH
@@ -196,7 +209,7 @@ async function buildWidget(data) {
 
   row.addSpacer(6)
 
-  const im = row.addImage(sparkImage(data))
+  const im = row.addImage(sparkImage(data, accent))
   im.imageSize = new Size(CHART_W, CHART_H)
   im.resizable = true
   try { im.applyFittingContentMode() } catch (e) {}
