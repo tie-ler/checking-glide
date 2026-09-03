@@ -1,4 +1,4 @@
-// Checking Glide — Scriptable widget (Rev 11)
+// Checking Glide — Scriptable widget (Rev 12)
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
@@ -7,7 +7,7 @@ const CHART_H = 78
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "9:47 PM",
+  as_of_time: "9:52 PM",
   available_spend: 12.51,
   daily_income: 176.07,
   daily_fixed: 95.32,
@@ -127,7 +127,7 @@ function sparkImage(data, accent) {
   const base = Number(data.nominal_spend) || 55
   const avg = daily.reduce((a, b) => a + b, 0) / daily.length
   const maxY = Math.max(base, avg, ...daily, 1) * 1.15
-  const padL = 6, padR = 28, padT = 20, padB = 22
+  const padL = 4, padR = 26, padT = 18, padB = 20
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = 7
@@ -137,7 +137,7 @@ function sparkImage(data, accent) {
   function Y(v) { return padT + plotH * (1 - Math.max(0, v) / maxY) }
 
   dc.setTextColor(new Color("#8E8E93"))
-  dc.setFont(Font.boldSystemFont(14))
+  dc.setFont(Font.boldSystemFont(13))
   dc.drawText("7D USED vs BASE", new Point(padL, 1))
 
   dashH(dc, padL, width - padR, Y(base), new Color("#8E8E93", 0.7), 5, 5, 2)
@@ -157,7 +157,7 @@ function sparkImage(data, accent) {
     dc.fillRect(new Rect(x, top, bw, Math.max(3, floorY - top)))
     dc.setTextColor(new Color("#8E8E93"))
     dc.setFont(Font.boldSystemFont(12))
-    dc.drawText(days[i], new Point(x + bw / 2 - 4, height - 18))
+    dc.drawText(days[i], new Point(x + bw / 2 - 4, height - 16))
   }
   return dc.getImage()
 }
@@ -165,7 +165,7 @@ function sparkImage(data, accent) {
 async function buildWidget(data) {
   const w = new ListWidget()
   w.backgroundColor = BG
-  w.setPadding(12, 14, 10, 12)
+  w.setPadding(12, 16, 10, 14)
   w.url = data.grok_url || GROK_URL
 
   const avail = Number(data.available_spend)
@@ -202,40 +202,44 @@ async function buildWidget(data) {
   const delta = left.addText(signedMoney(avail))
   delta.font = bigFont(32)
   delta.textColor = accent
+  left.addSpacer()
   const sub = left.addText("BASE  " + money(data.nominal_spend) + "   USED  " + money(used))
   sub.font = Font.mediumSystemFont(11)
   sub.textColor = muted
   sub.lineLimit = 1
 
-  row.addSpacer(6)
+  row.addSpacer(8)
 
   const im = row.addImage(sparkImage(data, accent))
   im.imageSize = new Size(CHART_W, CHART_H)
   im.resizable = true
   try { im.applyFittingContentMode() } catch (e) {}
 
-  w.addSpacer(10)
+  w.addSpacer(12)
 
   const meta = w.addStack()
   meta.layoutHorizontally()
-  function pill(k, v) {
+  meta.centerAlignContent()
+  const pills = [
+    ["INCOME", money(data.daily_income) + " / D"],
+    ["FIXED", money(data.daily_fixed) + " / D"],
+    ["RESERVE", money(data.daily_path) + " / D"],
+    ["CASH", money(controlShow)],
+    ["TARGET", money(floorShow)],
+  ]
+  pills.forEach((pair, i) => {
     const s = meta.addStack()
     s.layoutVertically()
-    const l = s.addText(k)
+    const l = s.addText(pair[0])
     l.font = Font.boldSystemFont(9)
     l.textColor = muted
-    const val = s.addText(v)
+    const val = s.addText(pair[1])
     val.font = Font.mediumSystemFont(12)
     val.textColor = ink
-    meta.addSpacer(12)
-  }
-  pill("INCOME", money(data.daily_income) + " / D")
-  pill("FIXED", money(data.daily_fixed) + " / D")
-  pill("RESERVE", money(data.daily_path) + " / D")
-  pill("CASH", money(controlShow))
-  pill("TARGET", money(floorShow))
+    if (i < pills.length - 1) meta.addSpacer()
+  })
 
-  w.addSpacer(6)
+  w.addSpacer(8)
   label(w, "AS OF  " + when, new Color("#636366"), 9)
   return w
 }
