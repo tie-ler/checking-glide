@@ -1,4 +1,4 @@
-// Checking Glide — Scriptable widget (Rev 9)
+// Checking Glide — Scriptable widget (Rev 10)
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
@@ -7,7 +7,7 @@ const CHART_H = 78
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "9:29 PM",
+  as_of_time: "9:36 PM",
   available_spend: 12.51,
   daily_income: 176.07,
   daily_fixed: 95.32,
@@ -231,7 +231,7 @@ async function buildWidget(data) {
   }
   pill("INCOME", money(data.daily_income) + " / D")
   pill("FIXED", money(data.daily_fixed) + " / D")
-  pill("PATH", money(data.daily_path) + " / D")
+  pill("RESERVE", money(data.daily_path) + " / D")
   pill("CONTROL", money(controlShow))
   pill("TARGET", money(floorShow))
 
