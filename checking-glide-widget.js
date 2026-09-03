@@ -1,4 +1,4 @@
-// Checking Glide — Scriptable widget (Rev 12)
+// Checking Glide — Scriptable widget (Rev 13)
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/glide.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
@@ -7,7 +7,7 @@ const CHART_H = 78
 
 const FALLBACK = {
   as_of: "2026-09-02",
-  as_of_time: "9:52 PM",
+  as_of_time: "9:58 PM",
   available_spend: 12.51,
   daily_income: 176.07,
   daily_fixed: 95.32,
@@ -127,7 +127,7 @@ function sparkImage(data, accent) {
   const base = Number(data.nominal_spend) || 55
   const avg = daily.reduce((a, b) => a + b, 0) / daily.length
   const maxY = Math.max(base, avg, ...daily, 1) * 1.15
-  const padL = 4, padR = 26, padT = 18, padB = 20
+  const padL = 4, padR = 34, padT = 18, padB = 20
   const plotW = width - padL - padR
   const plotH = height - padT - padB
   const n = 7
@@ -143,9 +143,15 @@ function sparkImage(data, accent) {
   dashH(dc, padL, width - padR, Y(base), new Color("#8E8E93", 0.7), 5, 5, 2)
   dashH(dc, padL, width - padR, Y(avg), accent, 4, 6, 2)
 
+  const labelX = width - padR + 2
   dc.setTextColor(accent)
   dc.setFont(Font.boldSystemFont(11))
-  dc.drawText("AVG", new Point(width - padR + 2, Y(avg) - 6))
+  dc.drawText("AVG", new Point(labelX, Y(avg) - 6))
+  if (Math.abs(base - avg) >= 8) {
+    dc.setTextColor(new Color("#8E8E93"))
+    dc.setFont(Font.boldSystemFont(11))
+    dc.drawText("BASE", new Point(labelX, Y(base) - 6))
+  }
 
   const days = ["T", "F", "S", "S", "M", "T", "W"]
   const floorY = padT + plotH
