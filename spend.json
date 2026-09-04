@@ -1,9 +1,12 @@
 {
   "rev": 20,
   "locked_rev": 19,
+  "start_date": "2026-09-03",
   "as_of": "2026-09-04",
-  "as_of_time": "7:47 AM",
-  "available_spend": 26.78,
+  "as_of_time": "7:55 AM",
+  "available_spend": 53.56,
+  "available_today": 26.78,
+  "carry": 53.56,
   "daily_income": 175.92,
   "daily_fixed": 116.03,
   "daily_path": 27.55,
@@ -25,9 +28,6 @@
   "f_gas": 4.94,
   "f_grocery": 5.97,
   "f_pharmacy": 0.89,
-  "rent_name": "LEXINGTON HILLS",
-  "rent_last_amount": 1464.26,
-  "move_flag": false,
   "daily_gas": 4.94,
   "gas_90d_rate": 8.51,
   "gas_overrun_drip": 3.57,
@@ -38,5 +38,9 @@
   "pharmacy_365_rate": 0.89,
   "pharmacy_overrun_drip": 0,
   "target": 10000,
-  "grok_url": "https://grok.com/?q=CHECKING%20GLIDE%20TAP.%20Read%20and%20write%20spend.json%20not%20glide.json.%20Recompute%20every%20run.%0APHARMACY%3DA.E.%2FWalgreens%2FCVS.%20Fills%20not%20in%20USED.%20drip%20in%20USED.%20No%20mermaid."
+  "ledger": [
+    {"date": "2026-09-03", "base": 32.34, "used": 5.56, "delta": 26.78, "carry": 26.78},
+    {"date": "2026-09-04", "base": 32.34, "used": 5.56, "delta": 26.78, "carry": 53.56}
+  ],
+  "grok_url": "https://grok.com/?q=CHECKING%20GLIDE%20TAP.%20Write%20spend.json%20only.%20NEVER%20change%20start_date%202026-09-03.%20NEVER%20delete%20or%20rewrite%20past%20ledger%20rows.%20Today%3A%20update%20or%20append%20today%20row%20only.%20available_spend%3Dcarry%3Dsum(delta)%20since%20start.%20available_today%3Dbase-used."
 }
