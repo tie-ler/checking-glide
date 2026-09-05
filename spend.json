@@ -3,7 +3,7 @@
   "locked_rev": 20,
   "start_date": "2026-09-03",
   "as_of": "2026-09-05",
-  "as_of_time": "7:00 AM",
+  "as_of_time": "7:38 AM",
   "available_spend": 80.34,
   "available_today": 26.78,
   "carry": 80.34,
@@ -13,7 +13,7 @@
   "nominal_spend": 32.34,
   "used_today": 5.56,
   "disc_mtd": 71.73,
-  "spark_week": [5.56, 0, 0, 0, 0, 0, 0],
+  "spark_week": [102.35, 28.43, 3.24, 62.93, 5.56, 5.56, 5.56],
   "status": "Spend",
   "control": 4986.41,
   "control_avg": 3064.88,
@@ -43,5 +43,5 @@
     {"date": "2026-09-04", "base": 32.34, "used": 5.56, "delta": 26.78, "carry": 53.56},
     {"date": "2026-09-05", "base": 32.34, "used": 5.56, "delta": 26.78, "carry": 80.34}
   ],
-  "grok_url": "https://grok.com/?q=CHECKING%20GLIDE%20TAP.%20Write%20spend.json%20only.%20NEVER%20change%20start_date%202026-09-03.%20NEVER%20delete%20or%20rewrite%20past%20ledger%20rows.%20Today%3A%20update%20or%20append%20today%20row%20only.%20available_spend%3Dcarry%3Dsum(delta)%20since%20start.%20available_today%3Dbase-used."
+  "grok_url": "https://grok.com/?q=CHECKING%20GLIDE%20TAP.%20Write%20spend.json%20only.%20NEVER%20change%20start_date.%20NEVER%20wipe%20spark_week%20or%20ledger.%20Shift%20spark_week%20left%20and%20append%20today%20used.%20available_spend%3Dcarry."
 }
