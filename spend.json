@@ -1,21 +1,21 @@
 {
-  "rev": 22,
+  "rev": 23,
   "locked_rev": 20,
   "start_date": "2026-09-03",
-  "as_of": "2026-09-05",
-  "as_of_time": "7:38 AM",
-  "available_spend": 80.34,
-  "available_today": 26.78,
-  "carry": 80.34,
+  "as_of": "2026-09-06",
+  "as_of_time": "7:01 AM",
+  "available_spend": 106.92,
+  "available_today": 26.58,
+  "carry": 106.92,
   "daily_income": 175.92,
   "daily_fixed": 116.03,
-  "daily_path": 27.55,
-  "nominal_spend": 32.34,
+  "daily_path": 27.75,
+  "nominal_spend": 32.14,
   "used_today": 5.56,
   "disc_mtd": 71.73,
-  "spark_week": [102.35, 28.43, 3.24, 62.93, 5.56, 5.56, 5.56],
+  "spark_week": [28.43, 3.24, 62.93, 5.56, 5.56, 5.56, 5.56],
   "status": "Spend",
-  "control": 4986.41,
+  "control": 4950.39,
   "control_avg": 3064.88,
   "floor": 10000,
   "path_days": 182,
@@ -41,7 +41,8 @@
   "ledger": [
     {"date": "2026-09-03", "base": 32.34, "used": 5.56, "delta": 26.78, "carry": 26.78},
     {"date": "2026-09-04", "base": 32.34, "used": 5.56, "delta": 26.78, "carry": 53.56},
-    {"date": "2026-09-05", "base": 32.34, "used": 5.56, "delta": 26.78, "carry": 80.34}
+    {"date": "2026-09-05", "base": 32.34, "used": 5.56, "delta": 26.78, "carry": 80.34},
+    {"date": "2026-09-06", "base": 32.14, "used": 5.56, "delta": 26.58, "carry": 106.92}
   ],
   "grok_url": "https://grok.com/?q=CHECKING%20GLIDE%20TAP.%20Write%20spend.json%20only.%20NEVER%20change%20start_date.%20NEVER%20wipe%20spark_week%20or%20ledger.%20Shift%20spark_week%20left%20and%20append%20today%20used.%20available_spend%3Dcarry."
 }
