@@ -1,19 +1,19 @@
 {
-  "rev": 30,
+  "rev": 31,
   "locked_rev": 20,
   "start_date": "2026-09-03",
-  "as_of": "2026-09-13",
-  "as_of_time": "7:20 AM",
-  "available_spend": -544.62,
-  "available_today": 16.46,
-  "carry": -544.62,
+  "as_of": "2026-09-15",
+  "as_of_time": "7:13 AM",
+  "available_spend": -519.90,
+  "available_today": 13.44,
+  "carry": -519.90,
   "daily_income": 175.92,
   "daily_fixed": 116.03,
   "daily_path": 38.10,
   "nominal_spend": 21.79,
-  "used_today": 5.33,
+  "used_today": 8.35,
   "status": "Save",
-  "control": 5597.43,
+  "control": 5543.11,
   "control_avg": 3064.88,
   "floor": 10000,
   "path_days": 182,
@@ -38,7 +38,7 @@
   "pharmacy_overrun_drip": 0,
   "rent_this_month": 1411.00,
   "target": 10000,
-  "spark_week": [50.58, 29.85, 7.50, 575.75, 5.33, 5.33, 5.33],
+  "spark_week": [7.50, 575.75, 5.33, 5.33, 5.33, 10.51, 8.35],
   "ledger": [
     {"date": "2026-09-03", "base": 32.34, "used": 33.99, "delta": -1.65, "carry": -1.65},
     {"date": "2026-09-04", "base": 32.34, "used": 5.56, "delta": 26.78, "carry": 25.13},
@@ -50,7 +50,9 @@
     {"date": "2026-09-10", "base": 21.79, "used": 575.75, "delta": -553.96, "carry": -594.00, "note": "Amazon 473.03 + 86.59 pending + 10.80 + drip"},
     {"date": "2026-09-11", "base": 21.79, "used": 5.33, "delta": 16.46, "carry": -577.54, "note": "payroll in; drip only"},
     {"date": "2026-09-12", "base": 21.79, "used": 5.33, "delta": 16.46, "carry": -561.08, "note": "drip only"},
-    {"date": "2026-09-13", "base": 21.79, "used": 5.33, "delta": 16.46, "carry": -544.62, "note": "drip only; gas fill not used"}
+    {"date": "2026-09-13", "base": 21.79, "used": 5.33, "delta": 16.46, "carry": -544.62, "note": "drip only; gas fill not used"},
+    {"date": "2026-09-14", "base": 21.79, "used": 10.51, "delta": 11.28, "carry": -533.34, "note": "McD 5.18 + drip; gas fill not used"},
+    {"date": "2026-09-15", "base": 21.79, "used": 8.35, "delta": 13.44, "carry": -519.90, "note": "McD 3.02 + drip; HEB grocery not used"}
   ],
   "grok_url": "https://grok.com/?q=CHECKING%20GLIDE%20TAP.%20Write%20spend.json%20only.%20RESERVE%3D%2810000-control_avg%29%2F182.%20USED%3Dcash%2Bcard%20disc%2Bdrips.%20HEB%20money%20order%20rent."
 }
