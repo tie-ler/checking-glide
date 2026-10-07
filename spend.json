@@ -1,20 +1,20 @@
 {
-  "rev": 41,
+  "rev": 42,
   "locked_rev": 20,
   "start_date": "2026-09-03",
-  "as_of": "2026-10-06",
-  "as_of_time": "7:02 AM",
-  "available_spend": -606.98,
-  "available_today": 32.20,
-  "carry": -606.98,
+  "as_of": "2026-10-07",
+  "as_of_time": "7:01 AM",
+  "available_spend": -574.81,
+  "available_today": 32.17,
+  "carry": -574.81,
   "daily_income": 172.45,
   "daily_fixed": 109.45,
-  "daily_path": 24.69,
-  "nominal_spend": 38.31,
+  "daily_path": 24.72,
+  "nominal_spend": 38.28,
   "used_today": 6.11,
   "status": "Save",
   "control": 4783.54,
-  "control_avg": 5507.13,
+  "control_avg": 5501.63,
   "floor": 10000,
   "path_days": 182,
   "path_input": "30d cash avg",
@@ -38,7 +38,7 @@
   "pharmacy_overrun_drip": 0,
   "rent_this_month": 1474.82,
   "target": 10000,
-  "spark_week": [175.47, 4.34, 4.34, 4.34, 23.81, 110.97, 6.11],
+  "spark_week": [4.34, 4.34, 4.34, 23.81, 110.97, 6.11, 6.11],
   "ledger": [
     {"date": "2026-09-30", "base": 34.93, "used": 175.47, "delta": -140.54, "carry": -666.03, "note": "Worldwide Cyclery 171.13"},
     {"date": "2026-10-01", "base": 34.93, "used": 4.34, "delta": 30.59, "carry": -635.44, "note": "drip; deposits not used"},
@@ -46,7 +46,8 @@
     {"date": "2026-10-03", "base": 34.93, "used": 4.34, "delta": 30.59, "carry": -574.26, "note": "drip only"},
     {"date": "2026-10-04", "base": 34.93, "used": 23.81, "delta": 11.12, "carry": -563.14, "note": "Amazon 19.47 + drip; Circle K gas not used"},
     {"date": "2026-10-05", "base": 34.93, "used": 110.97, "delta": -76.04, "carry": -639.18, "note": "Finleys 70 + Dominos 33.73 + parking 2.90 + drip; HEB and WEB PMTS 1474.82 not used"},
-    {"date": "2026-10-06", "base": 38.31, "used": 6.11, "delta": 32.20, "carry": -606.98, "note": "drip only; cashback 11.57 income not used"}
+    {"date": "2026-10-06", "base": 38.31, "used": 6.11, "delta": 32.20, "carry": -606.98, "note": "drip only; cashback 11.57 income not used"},
+    {"date": "2026-10-07", "base": 38.28, "used": 6.11, "delta": 32.17, "carry": -574.81, "note": "drip only; no cash or card disc; pending none"}
   ],
   "grok_url": "https://grok.com/?q=CHECKING%20GLIDE%20TAP.%20Write%20spend.json%20only.%20RESERVE%3D%2810000-control_avg%29%2F182.%20USED%3Dcash%2Bcard%20disc%2Bdrips."
 }
