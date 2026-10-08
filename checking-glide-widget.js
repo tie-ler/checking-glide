@@ -1,4 +1,4 @@
-// Checking Glide — Scriptable widget (Rev 17)
+// Checking Glide — Scriptable widget (Rev 21)
 const JSON_URL = "https://raw.githubusercontent.com/tie-ler/checking-glide/main/spend.json"
 const GROK_URL = "https://grok.com"
 const BG = new Color("#0B0B0F")
@@ -108,6 +108,18 @@ function dashH(dc, x1, x2, y, color, dash, gap, width) {
   }
 }
 
+function dayLabels(data, n) {
+  const letters = ["S", "M", "T", "W", "T", "F", "S"]
+  const m = String(data.as_of || "").match(/(\d{4})-(\d{2})-(\d{2})/)
+  const end = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date()
+  const out = []
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(end.getFullYear(), end.getMonth(), end.getDate() - i)
+    out.push(letters[d.getDay()])
+  }
+  return out
+}
+
 function sparkImage(data, accent) {
   const width = CHART_W * 2
   const height = CHART_H * 2
@@ -153,7 +165,7 @@ function sparkImage(data, accent) {
     dc.drawText("BASE", new Point(labelX, Y(base) - 6))
   }
 
-  const days = ["T", "F", "S", "S", "M", "T", "W"]
+  const days = dayLabels(data, n)
   const floorY = padT + plotH
   for (let i = 0; i < n; i++) {
     const v = Math.max(0, daily[i])
